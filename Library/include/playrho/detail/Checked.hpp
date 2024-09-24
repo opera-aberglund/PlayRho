@@ -59,8 +59,7 @@ namespace playrho::detail {
 /// @note This is meant to be used as a checker with types like <code>Checked</code>.
 /// @see Checked.
 template <class T>
-struct NoOpChecker
-{
+struct NoOpChecker {
     /// @brief Default value supplying functor.
     /// @return Always returns defaulted value of class template's given type parameter.
     constexpr auto operator()() noexcept -> decltype(T())
@@ -70,7 +69,7 @@ struct NoOpChecker
 
     /// @brief Value checking functor.
     /// @return Always @c nullptr, in a conceivably no-operation style.
-    constexpr auto operator()(const T&) noexcept -> const char *
+    constexpr auto operator()(const T&) noexcept -> const char*
     {
         return nullptr;
     }
@@ -117,13 +116,20 @@ public:
     static_assert(HasUnaryFunctor<Checker, bool, ValueType>::value,
                   "Checker type doesn't provide acceptable unary functor!");
 
+    auto cista_members()
+    {
+        return std::tie(m_value);
+    }
+
     /// @brief Failing is-checked class template trait.
     template <class U>
-    struct IsChecked: ::std::false_type {};
+    struct IsChecked : ::std::false_type {
+    };
 
     /// @brief Succeeding is-checked class template trait.
     template <class V, class C, bool N>
-    struct IsChecked<Checked<V, C, N>>: ::std::true_type {};
+    struct IsChecked<Checked<V, C, N>> : ::std::true_type {
+    };
 
     /// @brief Alias for the value type this class template was instantiated for.
     using underlying_type = ValueType;
@@ -180,9 +186,8 @@ public:
     /// @post Calling <code>get()</code> or casting to the underlying type, results
     ///   in the value given by the checker's nullary functor.
     /// @see Validate.
-    template <bool B = HasNullaryFunctor<Checker,ValueType>::value, std::enable_if_t<B, int> = 0>
-    constexpr Checked() noexcept(NoExcept):
-        m_value{Validate(Checker{}())}
+    template <bool B = HasNullaryFunctor<Checker, ValueType>::value, std::enable_if_t<B, int> = 0>
+    constexpr Checked() noexcept(NoExcept) : m_value{Validate(Checker{}())}
     {
         // Intentionally empty.
     }
@@ -193,15 +198,14 @@ public:
     /// @post Calling <code>get()</code> or casting to the underlying type, results
     ///   in the value given.
     /// @see Validate.
-    template <class U = ValueType,
-        std::enable_if_t<
-            std::conjunction_v<
-                std::negation<IsChecked<std::decay_t<U>>>,
-                std::is_constructible<ValueType, U&&>,
-                std::negation<is_narrowing_conversion<U, ValueType>>
-            >, bool> = true>
-    constexpr Checked(U&& value) noexcept(NoExcept):
-        m_value{Validate(ValueType(std::forward<U>(value)))}
+    template <
+        class U = ValueType,
+        std::enable_if_t<std::conjunction_v<std::negation<IsChecked<std::decay_t<U>>>,
+                                            std::is_constructible<ValueType, U&&>,
+                                            std::negation<is_narrowing_conversion<U, ValueType>>>,
+                         bool> = true>
+    constexpr Checked(U&& value) noexcept(NoExcept)
+        : m_value{Validate(ValueType(std::forward<U>(value)))}
     {
         // Intentionally empty.
     }
@@ -213,14 +217,12 @@ public:
     ///   in the value given.
     /// @see Validate.
     template <class U = ValueType,
-        std::enable_if_t<
-            std::conjunction_v<
-                std::negation<IsChecked<std::decay_t<U>>>,
-                std::is_constructible<ValueType, U&&>,
-                is_narrowing_conversion<U, ValueType>
-            >, bool> = false>
-    explicit constexpr Checked(U&& value) noexcept(NoExcept):
-        m_value{Validate(ValueType(std::forward<U>(value)))}
+              std::enable_if_t<std::conjunction_v<std::negation<IsChecked<std::decay_t<U>>>,
+                                                  std::is_constructible<ValueType, U&&>,
+                                                  is_narrowing_conversion<U, ValueType>>,
+                               bool> = false>
+    explicit constexpr Checked(U&& value) noexcept(NoExcept)
+        : m_value{Validate(ValueType(std::forward<U>(value)))}
     {
         // Intentionally empty.
     }
@@ -230,11 +232,12 @@ public:
     /// @post Calling <code>get()</code> or casting to the underlying type, results
     ///   in a value that compares equally to the value given.
     template <class OtherValueType, class OtherChecker, bool OtherNoExcept,
-    std::enable_if_t<
-    std::is_constructible_v<ValueType, OtherValueType> && !std::is_same_v<Checker, OtherChecker>,
-    int> = 0>
-    constexpr Checked(const Checked<OtherValueType, OtherChecker, OtherNoExcept>& other) noexcept(NoExcept):
-        m_value{Validate(other.get())}
+              std::enable_if_t<std::is_constructible_v<ValueType, OtherValueType> &&
+                                   !std::is_same_v<Checker, OtherChecker>,
+                               int> = 0>
+    constexpr Checked(const Checked<OtherValueType, OtherChecker, OtherNoExcept>& other) noexcept(
+        NoExcept)
+        : m_value{Validate(other.get())}
     {
         // Intentionally empty.
     }
@@ -245,8 +248,8 @@ public:
     ///   paramaeter value.
     /// @post The constructed object compares equally to @c other .
     template <bool OtherNoExcept>
-    constexpr Checked(const Checked<ValueType, Checker, OtherNoExcept>& other) noexcept:
-        m_value{other.get()}
+    constexpr Checked(const Checked<ValueType, Checker, OtherNoExcept>& other) noexcept
+        : m_value{other.get()}
     {
         // Intentionally empty.
     }
@@ -261,27 +264,22 @@ public:
     /// @brief Implicitly gets the underlying value via a cast or implicit conversion.
     /// @see get.
     template <class U,
-        std::enable_if_t<
-            std::conjunction_v<
-                std::negation<IsChecked<U>>,
-                std::is_constructible<U, ValueType>,
-                std::negation<is_narrowing_conversion<ValueType, U>>
-        >, bool> = true>
-    constexpr operator U () const noexcept
+              std::enable_if_t<std::conjunction_v<
+                                   std::negation<IsChecked<U>>, std::is_constructible<U, ValueType>,
+                                   std::negation<is_narrowing_conversion<ValueType, U>>>,
+                               bool> = true>
+    constexpr operator U() const noexcept
     {
         return U(m_value);
     }
 
     /// @brief Explicitly gets the underlying value via a cast or implicit conversion.
     /// @see get.
-    template <class U,
-        std::enable_if_t<
-            std::conjunction_v<
-                std::negation<IsChecked<U>>,
-                std::is_constructible<U, ValueType>,
-                is_narrowing_conversion<ValueType, U>
-        >, bool> = false>
-    explicit constexpr operator U () const noexcept
+    template <class U, std::enable_if_t<std::conjunction_v<std::negation<IsChecked<U>>,
+                                                           std::is_constructible<U, ValueType>,
+                                                           is_narrowing_conversion<ValueType, U>>,
+                                        bool> = false>
+    explicit constexpr operator U() const noexcept
     {
         return U(m_value);
     }
@@ -289,7 +287,7 @@ public:
     /// @brief Member-of pointer operator available for pointer <code>ValueType</code>.
     /// @note This is only available for pointer <code>ValueType</code>s.
     template <class U = ValueType>
-    constexpr std::enable_if_t<std::is_pointer_v<U>, U> operator-> () const
+    constexpr std::enable_if_t<std::is_pointer_v<U>, U> operator->() const
     {
         return m_value;
     }
@@ -297,8 +295,7 @@ public:
     /// @brief Indirection operator available for pointer <code>ValueType</code>.
     /// @note This is only available for pointer <code>ValueType</code>s.
     template <class U = ValueType>
-    constexpr std::enable_if_t<std::is_pointer_v<U>, remove_pointer_type>&
-    operator* () const
+    constexpr std::enable_if_t<std::is_pointer_v<U>, remove_pointer_type>& operator*() const
     {
         return *m_value;
     }
@@ -341,8 +338,8 @@ static_assert(std::is_convertible_v<Checked<float>, double>);
 /// @tparam NoExcept Whether checked type terminates or just throws for invalid values.
 /// @relatedalso Checked
 template <class ValueType, class Checker, bool NoExcept>
-auto operator<<(::std::ostream& os, const Checked<ValueType, Checker, NoExcept>& value) ->
-    decltype(os << ValueType(value))
+auto operator<<(::std::ostream& os, const Checked<ValueType, Checker, NoExcept>& value)
+    -> decltype(os << ValueType(value))
 {
     return os << ValueType(value);
 }
@@ -357,10 +354,11 @@ auto operator<<(::std::ostream& os, const Checked<ValueType, Checker, NoExcept>&
 /// @relatedalso Checked
 template <class LhsValueType, class LhsChecker, bool LhsNoExcept, // force newline
           class RhsValueType, class RhsChecker, bool RhsNoExcept>
-constexpr auto operator== (const Checked<LhsValueType, LhsChecker, LhsNoExcept>& lhs,
-                           const Checked<RhsValueType, RhsChecker, RhsNoExcept>& rhs)
-    noexcept(noexcept(std::declval<LhsValueType>() == std::declval<RhsValueType>()))
--> decltype(LhsValueType(lhs) == RhsValueType(rhs))
+constexpr auto
+operator==(const Checked<LhsValueType, LhsChecker, LhsNoExcept>& lhs,
+           const Checked<RhsValueType, RhsChecker, RhsNoExcept>&
+               rhs) noexcept(noexcept(std::declval<LhsValueType>() == std::declval<RhsValueType>()))
+    -> decltype(LhsValueType(lhs) == RhsValueType(rhs))
 {
     return LhsValueType(lhs) == RhsValueType(rhs);
 }
@@ -375,10 +373,11 @@ constexpr auto operator== (const Checked<LhsValueType, LhsChecker, LhsNoExcept>&
 /// @relatedalso Checked
 template <class LhsValueType, class LhsChecker, bool LhsNoExcept, // force newline
           class RhsValueType, class RhsChecker, bool RhsNoExcept>
-constexpr auto operator!= (const Checked<LhsValueType, LhsChecker, LhsNoExcept>& lhs,
-                           const Checked<RhsValueType, RhsChecker, RhsNoExcept>& rhs)
-    noexcept(noexcept(std::declval<LhsValueType>() != std::declval<RhsValueType>()))
--> decltype(LhsValueType(lhs) != RhsValueType(rhs))
+constexpr auto
+operator!=(const Checked<LhsValueType, LhsChecker, LhsNoExcept>& lhs,
+           const Checked<RhsValueType, RhsChecker, RhsNoExcept>&
+               rhs) noexcept(noexcept(std::declval<LhsValueType>() != std::declval<RhsValueType>()))
+    -> decltype(LhsValueType(lhs) != RhsValueType(rhs))
 {
     return LhsValueType(lhs) != RhsValueType(rhs);
 }
@@ -393,9 +392,9 @@ constexpr auto operator!= (const Checked<LhsValueType, LhsChecker, LhsNoExcept>&
 /// @relatedalso Checked
 template <class LhsValueType, class LhsChecker, bool LhsNoExcept, // force newline
           class RhsValueType, class RhsChecker, bool RhsNoExcept>
-constexpr auto operator<= (const Checked<LhsValueType, LhsChecker, LhsNoExcept>& lhs,
-                           const Checked<RhsValueType, RhsChecker, RhsNoExcept>& rhs)
--> decltype(LhsValueType(lhs) <= RhsValueType(rhs))
+constexpr auto operator<=(const Checked<LhsValueType, LhsChecker, LhsNoExcept>& lhs,
+                          const Checked<RhsValueType, RhsChecker, RhsNoExcept>& rhs)
+    -> decltype(LhsValueType(lhs) <= RhsValueType(rhs))
 {
     return LhsValueType(lhs) <= RhsValueType(rhs);
 }
@@ -410,9 +409,9 @@ constexpr auto operator<= (const Checked<LhsValueType, LhsChecker, LhsNoExcept>&
 /// @relatedalso Checked
 template <class LhsValueType, class LhsChecker, bool LhsNoExcept, // force newline
           class RhsValueType, class RhsChecker, bool RhsNoExcept>
-constexpr auto operator>= (const Checked<LhsValueType, LhsChecker, LhsNoExcept>& lhs,
-                           const Checked<RhsValueType, RhsChecker, RhsNoExcept>& rhs)
--> decltype(LhsValueType(lhs) >= RhsValueType(rhs))
+constexpr auto operator>=(const Checked<LhsValueType, LhsChecker, LhsNoExcept>& lhs,
+                          const Checked<RhsValueType, RhsChecker, RhsNoExcept>& rhs)
+    -> decltype(LhsValueType(lhs) >= RhsValueType(rhs))
 {
     return LhsValueType(lhs) >= RhsValueType(rhs);
 }
@@ -427,9 +426,9 @@ constexpr auto operator>= (const Checked<LhsValueType, LhsChecker, LhsNoExcept>&
 /// @relatedalso Checked
 template <class LhsValueType, class LhsChecker, bool LhsNoExcept, // force newline
           class RhsValueType, class RhsChecker, bool RhsNoExcept>
-constexpr auto operator< (const Checked<LhsValueType, LhsChecker, LhsNoExcept>& lhs,
-                          const Checked<RhsValueType, RhsChecker, RhsNoExcept>& rhs)
--> decltype(LhsValueType(lhs) < RhsValueType(rhs))
+constexpr auto operator<(const Checked<LhsValueType, LhsChecker, LhsNoExcept>& lhs,
+                         const Checked<RhsValueType, RhsChecker, RhsNoExcept>& rhs)
+    -> decltype(LhsValueType(lhs) < RhsValueType(rhs))
 {
     return LhsValueType(lhs) < RhsValueType(rhs);
 }
@@ -444,9 +443,9 @@ constexpr auto operator< (const Checked<LhsValueType, LhsChecker, LhsNoExcept>& 
 /// @relatedalso Checked
 template <class LhsValueType, class LhsChecker, bool LhsNoExcept, // force newline
           class RhsValueType, class RhsChecker, bool RhsNoExcept>
-constexpr auto operator> (const Checked<LhsValueType, LhsChecker, LhsNoExcept>& lhs,
-                          const Checked<RhsValueType, RhsChecker, RhsNoExcept>& rhs)
--> decltype(LhsValueType(lhs) > RhsValueType(rhs))
+constexpr auto operator>(const Checked<LhsValueType, LhsChecker, LhsNoExcept>& lhs,
+                         const Checked<RhsValueType, RhsChecker, RhsNoExcept>& rhs)
+    -> decltype(LhsValueType(lhs) > RhsValueType(rhs))
 {
     return LhsValueType(lhs) > RhsValueType(rhs);
 }
@@ -461,9 +460,9 @@ constexpr auto operator> (const Checked<LhsValueType, LhsChecker, LhsNoExcept>& 
 /// @relatedalso Checked
 template <class LhsValueType, class LhsChecker, bool LhsNoExcept, // force newline
           class RhsValueType, class RhsChecker, bool RhsNoExcept>
-constexpr auto operator* (const Checked<LhsValueType, LhsChecker, LhsNoExcept>& lhs,
-                          const Checked<RhsValueType, RhsChecker, RhsNoExcept>& rhs)
--> decltype(LhsValueType(lhs) * RhsValueType(rhs))
+constexpr auto operator*(const Checked<LhsValueType, LhsChecker, LhsNoExcept>& lhs,
+                         const Checked<RhsValueType, RhsChecker, RhsNoExcept>& rhs)
+    -> decltype(LhsValueType(lhs) * RhsValueType(rhs))
 {
     return LhsValueType(lhs) * RhsValueType(rhs);
 }
@@ -478,9 +477,9 @@ constexpr auto operator* (const Checked<LhsValueType, LhsChecker, LhsNoExcept>& 
 /// @relatedalso Checked
 template <class LhsValueType, class LhsChecker, bool LhsNoExcept, // force newline
           class RhsValueType, class RhsChecker, bool RhsNoExcept>
-constexpr auto operator/ (const Checked<LhsValueType, LhsChecker, LhsNoExcept>& lhs,
-                          const Checked<RhsValueType, RhsChecker, RhsNoExcept>& rhs)
--> decltype(LhsValueType(lhs) / RhsValueType(rhs))
+constexpr auto operator/(const Checked<LhsValueType, LhsChecker, LhsNoExcept>& lhs,
+                         const Checked<RhsValueType, RhsChecker, RhsNoExcept>& rhs)
+    -> decltype(LhsValueType(lhs) / RhsValueType(rhs))
 {
     return LhsValueType(lhs) / RhsValueType(rhs);
 }
@@ -495,9 +494,9 @@ constexpr auto operator/ (const Checked<LhsValueType, LhsChecker, LhsNoExcept>& 
 /// @relatedalso Checked
 template <class LhsValueType, class LhsChecker, bool LhsNoExcept, // force newline
           class RhsValueType, class RhsChecker, bool RhsNoExcept>
-constexpr auto operator+ (const Checked<LhsValueType, LhsChecker, LhsNoExcept>& lhs,
-                          const Checked<RhsValueType, RhsChecker, RhsNoExcept>& rhs)
--> decltype(LhsValueType(lhs) + RhsValueType(rhs))
+constexpr auto operator+(const Checked<LhsValueType, LhsChecker, LhsNoExcept>& lhs,
+                         const Checked<RhsValueType, RhsChecker, RhsNoExcept>& rhs)
+    -> decltype(LhsValueType(lhs) + RhsValueType(rhs))
 {
     return LhsValueType(lhs) + RhsValueType(rhs);
 }
@@ -512,9 +511,9 @@ constexpr auto operator+ (const Checked<LhsValueType, LhsChecker, LhsNoExcept>& 
 /// @relatedalso Checked
 template <class LhsValueType, class LhsChecker, bool LhsNoExcept, // force newline
           class RhsValueType, class RhsChecker, bool RhsNoExcept>
-constexpr auto operator- (const Checked<LhsValueType, LhsChecker, LhsNoExcept>& lhs,
-                          const Checked<RhsValueType, RhsChecker, RhsNoExcept>& rhs)
--> decltype(LhsValueType(lhs) - RhsValueType(rhs))
+constexpr auto operator-(const Checked<LhsValueType, LhsChecker, LhsNoExcept>& lhs,
+                         const Checked<RhsValueType, RhsChecker, RhsNoExcept>& rhs)
+    -> decltype(LhsValueType(lhs) - RhsValueType(rhs))
 {
     return LhsValueType(lhs) - RhsValueType(rhs);
 }
@@ -526,9 +525,8 @@ constexpr auto operator- (const Checked<LhsValueType, LhsChecker, LhsNoExcept>& 
 /// @tparam Other Type of the other value that this operation will operator with.
 /// @relatedalso Checked
 template <class ValueType, class Checker, bool NoExcept, class Other>
-constexpr auto operator== (const Checked<ValueType, Checker, NoExcept>& lhs,
-                           const Other& rhs)
--> decltype(ValueType(lhs) == rhs)
+constexpr auto operator==(const Checked<ValueType, Checker, NoExcept>& lhs, const Other& rhs)
+    -> decltype(ValueType(lhs) == rhs)
 {
     return ValueType(lhs) == rhs;
 }
@@ -540,9 +538,8 @@ constexpr auto operator== (const Checked<ValueType, Checker, NoExcept>& lhs,
 /// @tparam Other Type of the other value that this operation will operator with.
 /// @relatedalso Checked
 template <class ValueType, class Checker, bool NoExcept, class Other>
-constexpr auto operator== (const Other& lhs,
-                           const Checked<ValueType, Checker, NoExcept>& rhs)
--> decltype(lhs == ValueType(rhs))
+constexpr auto operator==(const Other& lhs, const Checked<ValueType, Checker, NoExcept>& rhs)
+    -> decltype(lhs == ValueType(rhs))
 {
     return lhs == ValueType(rhs);
 }
@@ -554,9 +551,8 @@ constexpr auto operator== (const Other& lhs,
 /// @tparam Other Type of the other value that this operation will operator with.
 /// @relatedalso Checked
 template <class ValueType, class Checker, bool NoExcept, class Other>
-constexpr auto operator!= (const Checked<ValueType, Checker, NoExcept>& lhs,
-                           const Other& rhs)
--> decltype(ValueType(lhs) != rhs)
+constexpr auto operator!=(const Checked<ValueType, Checker, NoExcept>& lhs, const Other& rhs)
+    -> decltype(ValueType(lhs) != rhs)
 {
     return ValueType(lhs) != rhs;
 }
@@ -568,9 +564,8 @@ constexpr auto operator!= (const Checked<ValueType, Checker, NoExcept>& lhs,
 /// @tparam Other Type of the other value that this operation will operator with.
 /// @relatedalso Checked
 template <class ValueType, class Checker, bool NoExcept, class Other>
-constexpr auto operator!= (const Other& lhs,
-                           const Checked<ValueType, Checker, NoExcept>& rhs)
--> decltype(lhs != ValueType(rhs))
+constexpr auto operator!=(const Other& lhs, const Checked<ValueType, Checker, NoExcept>& rhs)
+    -> decltype(lhs != ValueType(rhs))
 {
     return lhs != ValueType(rhs);
 }
@@ -582,9 +577,8 @@ constexpr auto operator!= (const Other& lhs,
 /// @tparam Other Type of the other value that this operation will operator with.
 /// @relatedalso Checked
 template <class ValueType, class Checker, bool NoExcept, class Other>
-constexpr auto operator<= (const Checked<ValueType, Checker, NoExcept>& lhs,
-                           const Other& rhs)
--> decltype(ValueType(lhs) <= ValueType(rhs))
+constexpr auto operator<=(const Checked<ValueType, Checker, NoExcept>& lhs, const Other& rhs)
+    -> decltype(ValueType(lhs) <= ValueType(rhs))
 {
     return ValueType(lhs) <= ValueType(rhs);
 }
@@ -596,9 +590,8 @@ constexpr auto operator<= (const Checked<ValueType, Checker, NoExcept>& lhs,
 /// @tparam Other Type of the other value that this operation will operator with.
 /// @relatedalso Checked
 template <class ValueType, class Checker, bool NoExcept, class Other>
-constexpr auto operator<= (const Other& lhs,
-                           const Checked<ValueType, Checker, NoExcept>& rhs)
--> decltype(ValueType(lhs) <= ValueType(rhs))
+constexpr auto operator<=(const Other& lhs, const Checked<ValueType, Checker, NoExcept>& rhs)
+    -> decltype(ValueType(lhs) <= ValueType(rhs))
 {
     return ValueType(lhs) <= ValueType(rhs);
 }
@@ -610,9 +603,8 @@ constexpr auto operator<= (const Other& lhs,
 /// @tparam Other Type of the other value that this operation will operator with.
 /// @relatedalso Checked
 template <class ValueType, class Checker, bool NoExcept, class Other>
-constexpr auto operator>= (const Checked<ValueType, Checker, NoExcept>& lhs,
-                           const Other& rhs)
--> decltype(ValueType(lhs) >= ValueType(rhs))
+constexpr auto operator>=(const Checked<ValueType, Checker, NoExcept>& lhs, const Other& rhs)
+    -> decltype(ValueType(lhs) >= ValueType(rhs))
 {
     return ValueType(lhs) >= ValueType(rhs);
 }
@@ -624,9 +616,8 @@ constexpr auto operator>= (const Checked<ValueType, Checker, NoExcept>& lhs,
 /// @tparam Other Type of the other value that this operation will operator with.
 /// @relatedalso Checked
 template <class ValueType, class Checker, bool NoExcept, class Other>
-constexpr auto operator>= (const Other& lhs,
-                           const Checked<ValueType, Checker, NoExcept>& rhs)
--> decltype(ValueType(lhs) >= ValueType(rhs))
+constexpr auto operator>=(const Other& lhs, const Checked<ValueType, Checker, NoExcept>& rhs)
+    -> decltype(ValueType(lhs) >= ValueType(rhs))
 {
     return ValueType(lhs) >= ValueType(rhs);
 }
@@ -639,9 +630,8 @@ constexpr auto operator>= (const Other& lhs,
 /// @tparam Other Type of the other value that this operation will operator with.
 /// @relatedalso Checked
 template <class ValueType, class Checker, bool NoExcept, class Other>
-constexpr auto operator< (const Checked<ValueType, Checker, NoExcept>& lhs,
-                          const Other& rhs)
--> decltype(ValueType(lhs) < ValueType(rhs))
+constexpr auto operator<(const Checked<ValueType, Checker, NoExcept>& lhs, const Other& rhs)
+    -> decltype(ValueType(lhs) < ValueType(rhs))
 {
     return ValueType(lhs) < ValueType(rhs);
 }
@@ -653,9 +643,8 @@ constexpr auto operator< (const Checked<ValueType, Checker, NoExcept>& lhs,
 /// @tparam Other Type of the other value that this operation will operator with.
 /// @relatedalso Checked
 template <class ValueType, class Checker, bool NoExcept, class Other>
-constexpr auto operator< (const Other& lhs,
-                          const Checked<ValueType, Checker, NoExcept>& rhs)
--> decltype(ValueType(lhs) < ValueType(rhs))
+constexpr auto operator<(const Other& lhs, const Checked<ValueType, Checker, NoExcept>& rhs)
+    -> decltype(ValueType(lhs) < ValueType(rhs))
 {
     return ValueType(lhs) < ValueType(rhs);
 }
@@ -667,9 +656,8 @@ constexpr auto operator< (const Other& lhs,
 /// @tparam Other Type of the other value that this operation will operator with.
 /// @relatedalso Checked
 template <class ValueType, class Checker, bool NoExcept, class Other>
-constexpr auto operator> (const Checked<ValueType, Checker, NoExcept>& lhs,
-                          const Other& rhs)
--> decltype(ValueType(lhs) > ValueType(rhs))
+constexpr auto operator>(const Checked<ValueType, Checker, NoExcept>& lhs, const Other& rhs)
+    -> decltype(ValueType(lhs) > ValueType(rhs))
 {
     return ValueType(lhs) > ValueType(rhs);
 }
@@ -681,9 +669,8 @@ constexpr auto operator> (const Checked<ValueType, Checker, NoExcept>& lhs,
 /// @tparam Other Type of the other value that this operation will operator with.
 /// @relatedalso Checked
 template <class ValueType, class Checker, bool NoExcept, class Other>
-constexpr auto operator> (const Other& lhs,
-                          const Checked<ValueType, Checker, NoExcept>& rhs)
--> decltype(ValueType(lhs) > ValueType(rhs))
+constexpr auto operator>(const Other& lhs, const Checked<ValueType, Checker, NoExcept>& rhs)
+    -> decltype(ValueType(lhs) > ValueType(rhs))
 {
     return ValueType(lhs) > ValueType(rhs);
 }
@@ -695,9 +682,9 @@ constexpr auto operator> (const Other& lhs,
 /// @tparam Other Type of the other value that this operation will operator with.
 /// @relatedalso Checked
 template <class ValueType, class Checker, bool NoExcept, class Other>
-constexpr auto operator* (const Checked<ValueType, Checker, NoExcept>& lhs, const Other& rhs)
--> std::enable_if_t<!IsMultipliableV<Checked<ValueType, Checker, NoExcept>, Other>,
-decltype(ValueType()*Other())>
+constexpr auto operator*(const Checked<ValueType, Checker, NoExcept>& lhs, const Other& rhs)
+    -> std::enable_if_t<!IsMultipliableV<Checked<ValueType, Checker, NoExcept>, Other>,
+                        decltype(ValueType() * Other())>
 {
     return ValueType(lhs) * rhs;
 }
@@ -709,9 +696,9 @@ decltype(ValueType()*Other())>
 /// @tparam Other Type of the other value that this operation will operator with.
 /// @relatedalso Checked
 template <class ValueType, class Checker, bool NoExcept, class Other>
-constexpr auto operator* (const Other& lhs, const Checked<ValueType, Checker, NoExcept>& rhs)
--> std::enable_if_t<!IsMultipliableV<Other, Checked<ValueType, Checker, NoExcept>>,
-decltype(Other()*ValueType())>
+constexpr auto operator*(const Other& lhs, const Checked<ValueType, Checker, NoExcept>& rhs)
+    -> std::enable_if_t<!IsMultipliableV<Other, Checked<ValueType, Checker, NoExcept>>,
+                        decltype(Other() * ValueType())>
 {
     return lhs * ValueType(rhs);
 }
@@ -723,9 +710,8 @@ decltype(Other()*ValueType())>
 /// @tparam Other Type of the other value that this operation will operator with.
 /// @relatedalso Checked
 template <class ValueType, class Checker, bool NoExcept, class Other>
-constexpr auto operator/ (const Checked<ValueType, Checker, NoExcept>& lhs,
-                          const Other& rhs)
--> decltype(ValueType(lhs) / rhs)
+constexpr auto operator/(const Checked<ValueType, Checker, NoExcept>& lhs, const Other& rhs)
+    -> decltype(ValueType(lhs) / rhs)
 {
     return ValueType(lhs) / rhs;
 }
@@ -737,9 +723,8 @@ constexpr auto operator/ (const Checked<ValueType, Checker, NoExcept>& lhs,
 /// @tparam Other Type of the other value that this operation will operator with.
 /// @relatedalso Checked
 template <class ValueType, class Checker, bool NoExcept, class Other>
-constexpr auto operator/ (const Other& lhs,
-                          const Checked<ValueType, Checker, NoExcept>& rhs)
--> decltype(lhs / ValueType(rhs))
+constexpr auto operator/(const Other& lhs, const Checked<ValueType, Checker, NoExcept>& rhs)
+    -> decltype(lhs / ValueType(rhs))
 {
     return lhs / ValueType(rhs);
 }
@@ -751,9 +736,8 @@ constexpr auto operator/ (const Other& lhs,
 /// @tparam Other Type of the other value that this operation will operator with.
 /// @relatedalso Checked
 template <class ValueType, class Checker, bool NoExcept, class Other>
-constexpr auto operator+ (const Checked<ValueType, Checker, NoExcept>& lhs,
-                          const Other& rhs)
--> decltype(ValueType(lhs) + rhs)
+constexpr auto operator+(const Checked<ValueType, Checker, NoExcept>& lhs, const Other& rhs)
+    -> decltype(ValueType(lhs) + rhs)
 {
     return ValueType(lhs) + rhs;
 }
@@ -765,9 +749,8 @@ constexpr auto operator+ (const Checked<ValueType, Checker, NoExcept>& lhs,
 /// @tparam Other Type of the other value that this operation will operator with.
 /// @relatedalso Checked
 template <class ValueType, class Checker, bool NoExcept, class Other>
-constexpr auto operator+ (const Other& lhs,
-                          const Checked<ValueType, Checker, NoExcept>& rhs)
--> decltype(lhs + ValueType(rhs))
+constexpr auto operator+(const Other& lhs, const Checked<ValueType, Checker, NoExcept>& rhs)
+    -> decltype(lhs + ValueType(rhs))
 {
     return lhs + ValueType(rhs);
 }
@@ -779,9 +762,8 @@ constexpr auto operator+ (const Other& lhs,
 /// @tparam Other Type of the other value that this operation will operator with.
 /// @relatedalso Checked
 template <class ValueType, class Checker, bool NoExcept, class Other>
-constexpr auto operator- (const Checked<ValueType, Checker, NoExcept>& lhs,
-                          const Other& rhs)
--> decltype(ValueType(lhs) - rhs)
+constexpr auto operator-(const Checked<ValueType, Checker, NoExcept>& lhs, const Other& rhs)
+    -> decltype(ValueType(lhs) - rhs)
 {
     return ValueType(lhs) - rhs;
 }
@@ -793,9 +775,8 @@ constexpr auto operator- (const Checked<ValueType, Checker, NoExcept>& lhs,
 /// @tparam Other Type of the other value that this operation will operator with.
 /// @relatedalso Checked
 template <class ValueType, class Checker, bool NoExcept, class Other>
-constexpr auto operator- (const Other& lhs,
-                          const Checked<ValueType, Checker, NoExcept>& rhs)
--> decltype(lhs - ValueType(rhs))
+constexpr auto operator-(const Other& lhs, const Checked<ValueType, Checker, NoExcept>& rhs)
+    -> decltype(lhs - ValueType(rhs))
 {
     return lhs - ValueType(rhs);
 }

@@ -50,17 +50,29 @@ public:
 
     /// @brief Default constructor.
     /// @note This causes default initialization of the underlying type.
-    constexpr IndexingNamedType()
-    noexcept(std::is_nothrow_default_constructible_v<underlying_type>): value_{} {}
+    constexpr IndexingNamedType() noexcept(std::is_nothrow_default_constructible_v<underlying_type>)
+        : value_{}
+    {
+    }
 
     /// @brief Copy initializing constructor.
-    constexpr explicit IndexingNamedType(const underlying_type& value)
-    noexcept(std::is_nothrow_copy_constructible_v<underlying_type>): value_(value) {}
+    constexpr explicit IndexingNamedType(const underlying_type& value) noexcept(
+        std::is_nothrow_copy_constructible_v<underlying_type>)
+        : value_(value)
+    {
+    }
 
     /// @brief Move initializing constructor.
-    constexpr explicit IndexingNamedType(underlying_type&& value)
-    noexcept(std::is_nothrow_move_constructible_v<underlying_type>):
-        value_(std::move(value)) {}
+    constexpr explicit IndexingNamedType(underlying_type&& value) noexcept(
+        std::is_nothrow_move_constructible_v<underlying_type>)
+        : value_(std::move(value))
+    {
+    }
+
+    auto cista_members()
+    {
+        return std::tie(value_);
+    }
 
     /// @brief Underlying type cast operator support.
     constexpr explicit operator underlying_type&() noexcept
@@ -94,37 +106,37 @@ public:
     }
 
     /// @brief Equality operator.
-    friend constexpr bool operator== (const IndexingNamedType& lhs, const IndexingNamedType& rhs)
+    friend constexpr bool operator==(const IndexingNamedType& lhs, const IndexingNamedType& rhs)
     {
         return lhs.get() == rhs.get();
     }
 
     /// @brief Inequality operator.
-    friend constexpr bool operator!= (const IndexingNamedType& lhs, const IndexingNamedType& rhs)
+    friend constexpr bool operator!=(const IndexingNamedType& lhs, const IndexingNamedType& rhs)
     {
         return lhs.get() != rhs.get();
     }
 
     /// @brief Less-than operator.
-    friend constexpr bool operator< (const IndexingNamedType& lhs, const IndexingNamedType& rhs)
+    friend constexpr bool operator<(const IndexingNamedType& lhs, const IndexingNamedType& rhs)
     {
         return lhs.get() < rhs.get();
     }
 
     /// @brief Greater-than operator.
-    friend constexpr bool operator> (const IndexingNamedType& lhs, const IndexingNamedType& rhs)
+    friend constexpr bool operator>(const IndexingNamedType& lhs, const IndexingNamedType& rhs)
     {
         return lhs.get() > rhs.get();
     }
 
     /// @brief Less-than-or-equal-to operator.
-    friend constexpr bool operator<= (const IndexingNamedType& lhs, const IndexingNamedType& rhs)
+    friend constexpr bool operator<=(const IndexingNamedType& lhs, const IndexingNamedType& rhs)
     {
         return lhs.get() <= rhs.get();
     }
 
     /// @brief Greater-than-or-equal-to operator.
-    friend constexpr bool operator>= (const IndexingNamedType& lhs, const IndexingNamedType& rhs)
+    friend constexpr bool operator>=(const IndexingNamedType& lhs, const IndexingNamedType& rhs)
     {
         return lhs.get() >= rhs.get();
     }
@@ -146,8 +158,8 @@ static_assert(std::is_nothrow_move_constructible_v<IndexingNamedType<int, struct
 /// @brief Gets the underlying value.
 /// @relatedalso IndexingNamedType
 template <typename T, typename Tag>
-[[deprecated("Use to_underlying instead")]]
-constexpr T& UnderlyingValue(IndexingNamedType<T, Tag>& o) noexcept
+[[deprecated("Use to_underlying instead")]] constexpr T&
+UnderlyingValue(IndexingNamedType<T, Tag>& o) noexcept
 {
     return static_cast<T&>(o);
 }
@@ -155,8 +167,8 @@ constexpr T& UnderlyingValue(IndexingNamedType<T, Tag>& o) noexcept
 /// @brief Gets the underlying value.
 /// @relatedalso IndexingNamedType
 template <typename T, typename Tag>
-[[deprecated("Use to_underlying instead")]]
-constexpr const T& UnderlyingValue(const IndexingNamedType<T, Tag>& o) noexcept
+[[deprecated("Use to_underlying instead")]] constexpr const T&
+UnderlyingValue(const IndexingNamedType<T, Tag>& o) noexcept
 {
     return static_cast<const T&>(o);
 }
@@ -167,12 +179,12 @@ constexpr const T& UnderlyingValue(const IndexingNamedType<T, Tag>& o) noexcept
 ///   <code>::playrho::detail::IndexingNamedType</code>.
 /// @relatedalso IndexingNamedType
 template <typename T, typename Tag>
-struct std::hash<::playrho::detail::IndexingNamedType<T, Tag>>
-{
+struct std::hash<::playrho::detail::IndexingNamedType<T, Tag>> {
     /// @brief Hashing functor operator.
     ::std::size_t operator()(const ::playrho::detail::IndexingNamedType<T, Tag>& v) const noexcept
     {
-        return ::std::hash<T>()(v.get());;
+        return ::std::hash<T>()(v.get());
+        ;
     }
 };
 

@@ -307,14 +307,14 @@ BodyCounter GetBodyRange(const World& world) noexcept;
 /// @param world The world whose body identifiers are to be returned for.
 /// @return Container of body identifiers.
 /// @see CreateBody(World&, const Body&), Destroy(World& world, BodyID), Clear(World&).
-std::vector<BodyID> GetBodies(const World& world);
+cista::offset::vector<BodyID> GetBodies(const World& world);
 
 /// @brief Gets the bodies-for-proxies container for this world.
 /// @details Provides insight on what bodies have been queued for proxy processing
 ///   during the next call to the world step function.
 /// @see Step.
 /// @todo Remove this function from this class - access from implementation instead.
-std::vector<BodyID> GetBodiesForProxies(const World& world);
+cista::offset::vector<BodyID> GetBodiesForProxies(const World& world);
 
 /// @brief Creates a rigid body within the world that's a copy of the given one.
 /// @note This function should not be used while the world is locked &mdash; as it is
@@ -383,14 +383,15 @@ inline auto IsDestroyed(const World& world, BodyID id) -> bool
 /// @brief Gets the container of valid joints attached to the identified body.
 /// @throws std::out_of_range If given an out of range body identifier.
 /// @see CreateJoint, GetBodyRange.
-std::vector<std::pair<BodyID, JointID>> GetJoints(const World& world, BodyID id);
+cista::offset::vector<std::pair<BodyID, JointID>> GetJoints(const World& world, BodyID id);
 
 /// @brief Gets the container of contacts attached to the identified body.
 /// @warning This collection changes during the time step and you may
 ///   miss some collisions if you don't use <code>ContactFunction</code>.
 /// @throws std::out_of_range If given an out of range body identifier.
 /// @see GetBodyRange.
-std::vector<std::tuple<ContactKey, ContactID>> GetContacts(const World& world, BodyID id);
+cista::offset::vector<cista::offset::pair<ContactKey, ContactID>> GetContacts(const World& world,
+                                                                              BodyID id);
 
 /// @brief Gets the identities of the shapes associated with the identified body.
 /// @throws std::out_of_range If given an out of range body identifier.
@@ -411,9 +412,8 @@ template <class F>
 void SetAccelerations(World& world, F fn)
 {
     const auto bodies = GetBodies(world);
-    std::for_each(begin(bodies), end(bodies), [&](const auto &b) {
-        SetAcceleration(world, b, fn(world, b));
-    });
+    std::for_each(begin(bodies), end(bodies),
+                  [&](const auto& b) { SetAcceleration(world, b, fn(world, b)); });
 }
 
 /// @brief Gets the extent of the currently valid joint range.
@@ -427,7 +427,7 @@ JointCounter GetJointRange(const World& world) noexcept;
 ///   destroyed by a call to <code>Destroy(World& world, JointID)</code> or
 ///   <code>Clear(World&)</code>.
 /// @see CreateJoint(World&, const Joint&), Destroy(World& world, JointID), Clear(World&).
-std::vector<JointID> GetJoints(const World& world);
+cista::offset::vector<JointID> GetJoints(const World& world);
 
 /// Gets the count of joints in the given world.
 /// @return 0 or higher.
@@ -519,8 +519,7 @@ ShapeID CreateShape(World& world, const Shape& def);
 /// @see CreateShape(World& world, const Shape& def), GetVertexRadiusInterval.
 /// @relatedalso World
 template <typename T>
-auto CreateShape(World& world, const T& shapeConf) ->
-    decltype(CreateShape(world, Shape{shapeConf}))
+auto CreateShape(World& world, const T& shapeConf) -> decltype(CreateShape(world, Shape{shapeConf}))
 {
     return CreateShape(world, Shape{shapeConf});
 }
@@ -560,7 +559,7 @@ ContactCounter GetContactRange(const World& world) noexcept;
 /// @brief Gets the contacts identified within the given world.
 /// @note Further information for each element of the returned container
 ///   is available from functions like @c GetContact or @c GetManifold.
-std::vector<KeyedContactID> GetContacts(const World& world);
+cista::offset::vector<KeyedContactID> GetContacts(const World& world);
 
 /// @brief Gets the identified contact.
 /// @throws std::out_of_range If given an out of range contact identifier.
@@ -604,6 +603,11 @@ Manifold GetManifold(const World& world, ContactID id);
 ///   not allowable.
 /// @see GetManifold, GetContactRange.
 void SetManifold(World& world, ContactID id, const Manifold& value);
+
+std::vector<uint8_t> Serialize(const World& world);
+
+template <typename T>
+World Deserialize(const std::vector<uint8_t>& data);
 
 /// @brief Gets the count of contacts in the given world.
 /// @note Not all contacts are for shapes that are actually touching. Some contacts are for
@@ -724,7 +728,7 @@ public:
     /// @post <code>this</code> is what <code>other</code> used to be.
     /// @post <code>other</code> is in a "valid but unspecified state". The only thing it
     ///   can be used for, is as the destination of an assignment.
-    World(World&& other) noexcept: m_impl{std::move(other.m_impl)}
+    World(World&& other) noexcept : m_impl{std::move(other.m_impl)}
     {
         // Intentionally empty.
     }
@@ -737,8 +741,9 @@ public:
     /// @post <code>GetType(const World&)</code> for the created object returns the value
     ///   returned by <code>GetTypeID<std::decay_t<T>>()</code>.
     template <typename T, typename DT = std::decay_t<T>,
-    typename Tp = std::enable_if_t<!std::is_same_v<DT, World> && !std::is_same_v<DT, WorldConf>, DT>,
-    typename = std::enable_if_t<std::is_constructible_v<DT, T>>>
+              typename Tp = std::enable_if_t<
+                  !std::is_same_v<DT, World> && !std::is_same_v<DT, WorldConf>, DT>,
+              typename = std::enable_if_t<std::is_constructible_v<DT, T>>>
     explicit World(T&& arg) : m_impl{std::make_unique<detail::WorldModel<Tp>>(std::forward<T>(arg))}
     {
         // Intentionally empty.
@@ -777,7 +782,8 @@ public:
     friend void SetBeginContactListener(World& world, ContactFunction listener) noexcept;
     friend void SetEndContactListener(World& world, ContactFunction listener) noexcept;
     friend void SetPreSolveContactListener(World& world, ContactManifoldFunction listener) noexcept;
-    friend void SetPostSolveContactListener(World& world, ContactImpulsesFunction listener) noexcept;
+    friend void SetPostSolveContactListener(World& world,
+                                            ContactImpulsesFunction listener) noexcept;
 
     // Miscellaneous friend functions...
     friend TypeID GetType(const World& world) noexcept;
@@ -802,19 +808,21 @@ public:
 
     // Body friend functions...
     friend BodyCounter GetBodyRange(const World& world) noexcept;
-    friend std::vector<BodyID> GetBodies(const World& world);
-    friend std::vector<BodyID> GetBodiesForProxies(const World& world);
+    friend cista::offset::vector<BodyID> GetBodies(const World& world);
+    friend cista::offset::vector<BodyID> GetBodiesForProxies(const World& world);
     friend BodyID CreateBody(World& world, const Body& body, bool resetMassData);
     friend Body GetBody(const World& world, BodyID id);
     friend void SetBody(World& world, BodyID id, const Body& body);
     friend void Destroy(World& world, BodyID id);
-    friend std::vector<std::pair<BodyID, JointID>> GetJoints(const World& world, BodyID id);
-    friend std::vector<std::tuple<ContactKey, ContactID>> GetContacts(const World& world, BodyID id);
+    friend cista::offset::vector<std::pair<BodyID, JointID>> GetJoints(const World& world,
+                                                                       BodyID id);
+    friend cista::offset::vector<cista::offset::pair<ContactKey, ContactID>>
+    GetContacts(const World& world, BodyID id);
     friend std::vector<ShapeID> GetShapes(const World& world, BodyID id);
 
     // Joint friend functions...
     friend JointCounter GetJointRange(const World& world) noexcept;
-    friend std::vector<JointID> GetJoints(const World& world);
+    friend cista::offset::vector<JointID> GetJoints(const World& world);
     friend JointID CreateJoint(World& world, const Joint& def);
     friend void Destroy(World& world, JointID id);
     friend Joint GetJoint(const World& world, JointID id);
@@ -829,11 +837,14 @@ public:
 
     // Contact friend functions...
     friend ContactCounter GetContactRange(const World& world) noexcept;
-    friend std::vector<KeyedContactID> GetContacts(const World& world);
+    friend cista::offset::vector<KeyedContactID> GetContacts(const World& world);
     friend Contact GetContact(const World& world, ContactID id);
     friend void SetContact(World& world, ContactID id, const Contact& value);
     friend Manifold GetManifold(const World& world, ContactID id);
     friend void SetManifold(World& world, ContactID id, const Manifold& value);
+
+    // Serialization
+    friend std::vector<uint8_t> Serialize(const World& world);
 
 private:
     /// @brief Pointer to implementation (PIMPL)
@@ -895,7 +906,7 @@ inline TypeID GetType(const World& world) noexcept
 
 inline bool operator==(const World& lhs, const World& rhs) noexcept
 {
-    return (lhs.m_impl == rhs.m_impl) ||
+    return (lhs.m_impl.get() == rhs.m_impl.get()) ||
            ((lhs.m_impl && rhs.m_impl) && (lhs.m_impl->IsEqual_(*rhs.m_impl)));
 }
 
@@ -966,12 +977,12 @@ inline BodyCounter GetBodyRange(const World& world) noexcept
     return world.m_impl->GetBodyRange_();
 }
 
-inline std::vector<BodyID> GetBodies(const World& world)
+inline cista::offset::vector<BodyID> GetBodies(const World& world)
 {
     return world.m_impl->GetBodies_();
 }
 
-inline std::vector<BodyID> GetBodiesForProxies(const World& world)
+inline cista::offset::vector<BodyID> GetBodiesForProxies(const World& world)
 {
     return world.m_impl->GetBodiesForProxies_();
 }
@@ -991,12 +1002,13 @@ inline void Destroy(World& world, BodyID id)
     world.m_impl->Destroy_(id);
 }
 
-inline std::vector<std::pair<BodyID, JointID>> GetJoints(const World& world, BodyID id)
+inline cista::offset::vector<std::pair<BodyID, JointID>> GetJoints(const World& world, BodyID id)
 {
     return world.m_impl->GetJoints_(id);
 }
 
-inline std::vector<std::tuple<ContactKey, ContactID>> GetContacts(const World& world, BodyID id)
+inline cista::offset::vector<cista::offset::pair<ContactKey, ContactID>>
+GetContacts(const World& world, BodyID id)
 {
     return world.m_impl->GetContacts_(id);
 }
@@ -1013,7 +1025,7 @@ inline JointCounter GetJointRange(const World& world) noexcept
     return world.m_impl->GetJointRange_();
 }
 
-inline std::vector<JointID> GetJoints(const World& world)
+inline cista::offset::vector<JointID> GetJoints(const World& world)
 {
     return world.m_impl->GetJoints_();
 }
@@ -1072,7 +1084,7 @@ inline ContactCounter GetContactRange(const World& world) noexcept
     return world.m_impl->GetContactRange_();
 }
 
-inline std::vector<KeyedContactID> GetContacts(const World& world)
+inline cista::offset::vector<KeyedContactID> GetContacts(const World& world)
 {
     return world.m_impl->GetContacts_();
 }
@@ -1095,6 +1107,17 @@ inline Manifold GetManifold(const World& world, ContactID id)
 inline void SetManifold(World& world, ContactID id, const Manifold& value)
 {
     world.m_impl->SetManifold_(id, value);
+}
+
+inline std::vector<uint8_t> Serialize(const World& world)
+{
+    return world.m_impl->Serialize_();
+}
+
+template <typename T>
+World Deserialize(const std::vector<uint8_t>& data)
+{
+    return World{*cista::deserialize<T>(data)};
 }
 
 // Free functions...

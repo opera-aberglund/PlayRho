@@ -54,6 +54,8 @@
 #include <playrho/d2/MassData.hpp>
 #include <playrho/d2/Shape.hpp>
 
+#include <cista.hpp>
+
 namespace playrho::d2 {
 class DynamicTree;
 }
@@ -216,14 +218,14 @@ struct WorldConcept {
     ///   <code>CreateBody_(const Body&)</code> function that haven't yet been destroyed.
     /// @return An iterable of body identifiers.
     /// @see CreateBody_.
-    virtual std::vector<BodyID> GetBodies_() const = 0;
+    virtual cista::offset::vector<BodyID> GetBodies_() const = 0;
 
     /// @brief Gets the bodies-for-proxies range for this world.
     /// @details Provides insight on what bodies have been queued for proxy processing
     ///   during the next call to the world step function.
     /// @see Step_.
     /// @todo Remove this function from this class - access from implementation instead.
-    virtual std::vector<BodyID> GetBodiesForProxies_() const = 0;
+    virtual cista::offset::vector<BodyID> GetBodiesForProxies_() const = 0;
 
     /// @brief Creates a rigid body that's a copy of the given one.
     /// @warning This function should not be used while the world is locked &mdash; as it is
@@ -272,14 +274,15 @@ struct WorldConcept {
     /// @brief Gets the range of joints attached to the identified body.
     /// @throws std::out_of_range If given an invalid body identifier.
     /// @see CreateJoint_, GetBodyRange_.
-    virtual std::vector<std::pair<BodyID, JointID>> GetJoints_(BodyID id) const = 0;
+    virtual cista::offset::vector<std::pair<BodyID, JointID>> GetJoints_(BodyID id) const = 0;
 
     /// @brief Gets the container of contacts attached to the identified body.
     /// @warning This collection changes during the time step and you may
     ///   miss some collisions if you don't use <code>ContactFunction</code>.
     /// @throws std::out_of_range If given an invalid body identifier.
     /// @see GetBodyRange_.
-    virtual std::vector<std::tuple<ContactKey, ContactID>> GetContacts_(BodyID id) const = 0;
+    virtual cista::offset::vector<cista::offset::pair<ContactKey, ContactID>>
+    GetContacts_(BodyID id) const = 0;
 
     /// @brief Gets the identities of the shapes associated with the identified body.
     /// @throws std::out_of_range If given an invalid body identifier.
@@ -299,7 +302,7 @@ struct WorldConcept {
     ///   <code>CreateJoint_</code> function that haven't yet been destroyed.
     /// @return World joints sized-range.
     /// @see CreateJoint_.
-    virtual std::vector<JointID> GetJoints_() const = 0;
+    virtual cista::offset::vector<JointID> GetJoints_() const = 0;
 
     /// @brief Creates a joint to constrain one or more bodies.
     /// @warning This function is locked during callbacks.
@@ -380,7 +383,7 @@ struct WorldConcept {
     /// @warning contacts are created and destroyed in the middle of a time step.
     /// Use <code>ContactFunction</code> to avoid missing contacts.
     /// @return World contacts sized-range.
-    virtual std::vector<KeyedContactID> GetContacts_() const = 0;
+    virtual cista::offset::vector<KeyedContactID> GetContacts_() const = 0;
 
     /// @brief Gets the identified contact.
     /// @throws std::out_of_range If given an invalid contact identifier.
@@ -405,6 +408,8 @@ struct WorldConcept {
     /// @throws std::out_of_range If given an invalid contact identifier.
     /// @see GetManifold_, GetContactRange_.
     virtual void SetManifold_(ContactID id, const Manifold& value) = 0;
+
+    virtual std::vector<uint8_t> Serialize_() const = 0;
 };
 
 } // namespace playrho::d2::detail

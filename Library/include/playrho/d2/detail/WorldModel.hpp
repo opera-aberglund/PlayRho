@@ -24,17 +24,22 @@
 /// @file
 /// @brief Definitions of the WorldModel class and closely related code.
 
+#include "playrho/d2/World.hpp"
+
+
 #include <type_traits> // for std::is_same_v, is_nothrow_constructible_v, etc.
 #include <utility> // for std::forward
 
 #include <playrho/d2/detail/WorldConcept.hpp>
+
+#include <cista.hpp>
 
 namespace playrho::d2::detail {
 
 /// @brief Interface between type class template instantiated for and the WorldConcept class.
 /// @see WorldConcept.
 template <class T>
-struct WorldModel final: WorldConcept {
+struct WorldModel final : WorldConcept {
     /// @brief Type alias for the type of the data held.
     using data_type = T;
 
@@ -203,13 +208,13 @@ struct WorldModel final: WorldConcept {
     }
 
     /// @copydoc WorldConcept::GetBodies_
-    std::vector<BodyID> GetBodies_() const override
+    cista::offset::vector<BodyID> GetBodies_() const override
     {
         return GetBodies(data);
     }
 
     /// @copydoc WorldConcept::GetBodiesForProxies_
-    std::vector<BodyID> GetBodiesForProxies_() const override
+    cista::offset::vector<BodyID> GetBodiesForProxies_() const override
     {
         return GetBodiesForProxies(data);
     }
@@ -239,13 +244,14 @@ struct WorldModel final: WorldConcept {
     }
 
     /// @copydoc WorldConcept::GetJoints_(BodyID) const
-    std::vector<std::pair<BodyID, JointID>> GetJoints_(BodyID id) const override
+    cista::offset::vector<std::pair<BodyID, JointID>> GetJoints_(BodyID id) const override
     {
         return GetJoints(data, id);
     }
 
     /// @copydoc WorldConcept::GetContacts_(BodyID) const
-    std::vector<std::tuple<ContactKey, ContactID>> GetContacts_(BodyID id) const override
+    cista::offset::vector<cista::offset::pair<ContactKey, ContactID>>
+    GetContacts_(BodyID id) const override
     {
         return GetContacts(data, id);
     }
@@ -265,7 +271,7 @@ struct WorldModel final: WorldConcept {
     }
 
     /// @copydoc WorldConcept::GetJoints_
-    std::vector<JointID> GetJoints_() const override
+    cista::offset::vector<JointID> GetJoints_() const override
     {
         return GetJoints(data);
     }
@@ -335,7 +341,7 @@ struct WorldModel final: WorldConcept {
     }
 
     /// @copydoc WorldConcept::GetContacts_
-    std::vector<KeyedContactID> GetContacts_() const override
+    cista::offset::vector<KeyedContactID> GetContacts_() const override
     {
         return GetContacts(data);
     }
@@ -362,6 +368,11 @@ struct WorldModel final: WorldConcept {
     void SetManifold_(ContactID id, const Manifold& value) override
     {
         SetManifold(data, id, value);
+    }
+
+    std::vector<uint8_t> Serialize_() const override
+    {
+        return cista::serialize(data);
     }
 
     // Member variables

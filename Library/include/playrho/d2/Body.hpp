@@ -52,6 +52,8 @@
 #include <playrho/d2/UnitVec.hpp>
 #include <playrho/d2/Velocity.hpp>
 
+#include <cista.hpp>
+
 // IWYU pragma: end_exports
 
 namespace playrho::d2 {
@@ -79,7 +81,6 @@ namespace playrho::d2 {
 class Body
 {
 public:
-
     /// @brief Default linear damping.
     static constexpr auto DefaultLinearDamping = NonNegative<Frequency>{};
 
@@ -313,7 +314,8 @@ public:
     ///   and angular).
     /// @post The <code>IsAwake()</code> function returns false.
     /// @post This body's <code>GetUnderActiveTime</code> function returns zero.
-    /// @post This body's <code>GetVelocity</code> function returns zero linear & zero angular speed.
+    /// @post This body's <code>GetVelocity</code> function returns zero linear & zero angular
+    /// speed.
     /// @see IsAwake.
     void UnsetAwake() noexcept;
 
@@ -622,8 +624,7 @@ inline void Body::SetAwakeFlag() noexcept
 
 inline void Body::UnsetAwakeFlag() noexcept
 {
-    assert(((m_flags & e_velocityFlag) == 0) ||
-           ((m_flags & e_autoSleepFlag) != 0));
+    assert(((m_flags & e_velocityFlag) == 0) || ((m_flags & e_autoSleepFlag) != 0));
     m_flags &= ~e_awakeFlag;
 }
 

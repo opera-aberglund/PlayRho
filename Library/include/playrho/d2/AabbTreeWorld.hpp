@@ -90,26 +90,26 @@ class ContactImpulsesList;
 class AabbTreeWorld;
 
 /// @brief Body IDs container type.
-using BodyIDs = std::vector<BodyID>;
+using BodyIDs = cista::offset::vector<BodyID>;
 
 /// @brief Keyed contact IDs container type.
-using KeyedContactIDs = std::vector<KeyedContactID>;
+using KeyedContactIDs = cista::offset::vector<KeyedContactID>;
 
 /// @brief Joint IDs container type.
 /// @note Cannot be container of Joint instances since joints are polymorphic types.
-using JointIDs = std::vector<JointID>;
+using JointIDs = cista::offset::vector<JointID>;
 
 /// @brief Container type for Body associated contact information.
-using BodyContactIDs = std::vector<std::tuple<ContactKey, ContactID>>;
+using BodyContactIDs = cista::offset::vector<cista::offset::pair<ContactKey, ContactID>>;
 
 /// @brief Body joint IDs container type.
-using BodyJointIDs = std::vector<std::pair<BodyID, JointID>>;
+using BodyJointIDs = cista::offset::vector<std::pair<BodyID, JointID>>;
 
 /// @brief Body shape IDs container type.
-using BodyShapeIDs = std::vector<std::pair<BodyID, ShapeID>>;
+using BodyShapeIDs = cista::offset::vector<std::pair<BodyID, ShapeID>>;
 
 /// @brief Proxy container type alias.
-using ProxyIDs = std::vector<DynamicTree::Size>;
+using ProxyIDs = cista::offset::vector<DynamicTree::Size>;
 
 /// @name AabbTreeWorld Listener Non-Member Functions
 /// @{
@@ -538,10 +538,12 @@ inline auto IsDestroyed(const AabbTreeWorld& world, ContactID id) -> bool
 /// @brief An AABB dynamic-tree based world implementation.
 /// @note This is designed to be compatible with the World class interface.
 /// @see World
-class AabbTreeWorld {
+class AabbTreeWorld
+{
 public:
     /// @brief Broad phase generated data for identifying potentially new contacts.
-    /// @details Stores the contact-key followed by the key's min contactable then max contactable data.
+    /// @details Stores the contact-key followed by the key's min contactable then max contactable
+    /// data.
     using ProxyKey = std::tuple<ContactKey, Contactable, Contactable>;
 
     struct ContactUpdateConf;
@@ -588,19 +590,28 @@ public:
     /// @note This type is not assignable.
     AabbTreeWorld& operator=(AabbTreeWorld&& other) = delete;
 
+    auto cista_members()
+    {
+        return std::tie(m_proxiesForContacts, m_fixturesForProxies, m_bodiesForSync, m_bodies,
+                        m_joints, m_contacts);
+    }
+
     // Listener friend functions...
     friend void SetShapeDestructionListener(AabbTreeWorld& world, ShapeFunction listener) noexcept;
     friend void SetDetachListener(AabbTreeWorld& world, BodyShapeFunction listener) noexcept;
     friend void SetJointDestructionListener(AabbTreeWorld& world, JointFunction listener) noexcept;
     friend void SetBeginContactListener(AabbTreeWorld& world, ContactFunction listener) noexcept;
     friend void SetEndContactListener(AabbTreeWorld& world, ContactFunction listener) noexcept;
-    friend void SetPreSolveContactListener(AabbTreeWorld& world, ContactManifoldFunction listener) noexcept;
-    friend void SetPostSolveContactListener(AabbTreeWorld& world, ContactImpulsesFunction listener) noexcept;
+    friend void SetPreSolveContactListener(AabbTreeWorld& world,
+                                           ContactManifoldFunction listener) noexcept;
+    friend void SetPostSolveContactListener(AabbTreeWorld& world,
+                                            ContactImpulsesFunction listener) noexcept;
 
     // Miscellaneous friend functions...
     friend bool operator==(const AabbTreeWorld& lhs, const AabbTreeWorld& rhs);
     friend bool operator!=(const AabbTreeWorld& lhs, const AabbTreeWorld& rhs);
-    friend std::optional<pmr::StatsResource::Stats> GetResourceStats(const AabbTreeWorld& world) noexcept;
+    friend std::optional<pmr::StatsResource::Stats>
+    GetResourceStats(const AabbTreeWorld& world) noexcept;
     friend void Clear(AabbTreeWorld& world) noexcept;
     friend StepStats Step(AabbTreeWorld& world, const StepConf& conf);
     friend bool IsStepComplete(const AabbTreeWorld& world) noexcept;
@@ -654,8 +665,7 @@ private:
     using FlagsType = std::uint32_t;
 
     /// @brief Flag enumeration.
-    enum Flag: FlagsType
-    {
+    enum Flag : FlagsType {
         /// Locked.
         e_locked = 0x0002,
 
@@ -671,8 +681,7 @@ private:
 
     /// Bodies, contacts, and joints that are already in an <code>Island</code> by their ID.
     /// @see Step.
-    struct Islanded
-    {
+    struct Islanded {
         /// @brief Type alias for member variables.
         using vector = std::vector<bool>;
 
@@ -684,8 +693,8 @@ private:
         friend bool operator==(const Islanded& lhs, const Islanded& rhs) noexcept
         {
             return lhs.bodies == rhs.bodies // newline!
-                && lhs.contacts == rhs.contacts // newline!
-                && lhs.joints == rhs.joints;
+                   && lhs.contacts == rhs.contacts // newline!
+                   && lhs.joints == rhs.joints;
         }
 
         /// @brief Hidden friend inequality support for Islanded.
@@ -699,7 +708,8 @@ private:
     /// @details Finds islands, integrates and solves constraints, solves position constraints.
     /// @note This may miss collisions involving fast moving bodies and allow them to tunnel
     ///   through each other.
-    /// @pre <code>IsLocked(const AabbTreeWorld&)</code> & <code>IsStepComplete(const AabbTreeWorld&)</code>
+    /// @pre <code>IsLocked(const AabbTreeWorld&)</code> & <code>IsStepComplete(const
+    /// AabbTreeWorld&)</code>
     ///   return true for this world.
     /// @post No contact in the world needs updating.
     RegStepStats SolveReg(const StepConf& conf);
@@ -717,7 +727,8 @@ private:
     /// @param conf Time step configuration information.
     /// @param island Island of bodies, contacts, and joints to solve for. Must contain at least
     ///   one body, contact, or joint.
-    /// @pre <code>IsLocked(const AabbTreeWorld&)</code> & <code>IsStepComplete(const AabbTreeWorld&)</code>
+    /// @pre <code>IsLocked(const AabbTreeWorld&)</code> & <code>IsStepComplete(const
+    /// AabbTreeWorld&)</code>
     ///   return true for this world.
     /// @pre @p island contains at least one body, contact, or joint identifier.
     /// @return Island solver results.
@@ -726,23 +737,19 @@ private:
     /// @brief Adds to the island based off of a given "seed" body.
     /// @post Contacts are listed in the island in the order that bodies provide those contacts.
     /// @post Joints are listed the island in the order that bodies provide those joints.
-    void AddToIsland(Island& island, BodyID seed,
-                     BodyCounter& remNumBodies,
-                     ContactCounter& remNumContacts,
-                     JointCounter& remNumJoints);
+    void AddToIsland(Island& island, BodyID seed, BodyCounter& remNumBodies,
+                     ContactCounter& remNumContacts, JointCounter& remNumJoints);
 
     /// @brief Body stack.
     using BodyStack = std::vector<BodyID, pmr::polymorphic_allocator<BodyID>>;
 
     /// @brief Adds to the island.
-    void AddToIsland(Island& island, BodyStack& stack,
-                     BodyCounter& remNumBodies,
-                     ContactCounter& remNumContacts,
-                     JointCounter& remNumJoints);
+    void AddToIsland(Island& island, BodyStack& stack, BodyCounter& remNumBodies,
+                     ContactCounter& remNumContacts, JointCounter& remNumJoints);
 
-    /// @brief Adds contacts of identified body to island & adds other contacted bodies to body stack.
-    void AddContactsToIsland(Island& island, BodyStack& stack,
-                             const BodyContactIDs& contacts,
+    /// @brief Adds contacts of identified body to island & adds other contacted bodies to body
+    /// stack.
+    void AddContactsToIsland(Island& island, BodyStack& stack, const BodyContactIDs& contacts,
                              BodyID bodyID);
 
     /// @brief Adds joints to the island.
@@ -789,8 +796,7 @@ private:
     IslandStats SolveToiViaGS(const Island& island, const StepConf& conf);
 
     /// @brief Process contacts output.
-    struct ProcessContactsOutput
-    {
+    struct ProcessContactsOutput {
         ContactCounter contactsUpdated = 0; ///< Contacts updated.
         ContactCounter contactsSkipped = 0; ///< Contacts skipped.
     };
@@ -799,11 +805,13 @@ private:
     /// @details This does the following:
     ///   1. Advances the appropriate associated other bodies to the given TOI (advancing
     ///      their sweeps and synchronizing their transforms to their new sweeps).
-    ///   2. Updates the contact manifolds and touching statuses and notifies listener (if one given) of
+    ///   2. Updates the contact manifolds and touching statuses and notifies listener (if one
+    ///   given) of
     ///      the appropriate contacts of the body.
     ///   3. Adds those contacts that are still enabled and still touching to the given island
     ///      (or resets the other bodies advancement).
-    ///   4. Adds to the island, those other bodies that haven't already been added of the contacts that
+    ///   4. Adds to the island, those other bodies that haven't already been added of the contacts
+    ///   that
     ///      got added.
     /// @param[in,out] id Identifier of the dynamic/accelerable body to process contacts for.
     /// @param[in,out] island Island. On return this may contain additional contacts or bodies.
@@ -812,8 +820,7 @@ private:
     /// @pre The identified body is in <code>m_islanded.bodies</code> and accelerable.
     /// @pre There should be no lower TOI for which contacts have not already been processed.
     ProcessContactsOutput ProcessContactsForTOI(BodyID id, Island& island,
-                                                ZeroToUnderOneFF<Real> toi,
-                                                const StepConf& conf);
+                                                ZeroToUnderOneFF<Real> toi, const StepConf& conf);
 
     /// @brief Removes the given body from this world.
     void Remove(BodyID id);
@@ -825,8 +832,7 @@ private:
     void Remove(JointID id);
 
     /// @brief Update contacts statistics.
-    struct UpdateContactsStats
-    {
+    struct UpdateContactsStats {
         /// @brief Number of contacts updated.
         ContactCounter updated = 0;
 
@@ -835,15 +841,13 @@ private:
     };
 
     /// @brief Destroy contacts statistics.
-    struct DestroyContactsStats
-    {
+    struct DestroyContactsStats {
         ContactCounter overlap = 0; ///< Erased by not overlapping.
         ContactCounter filter = 0; ///< Erased due to filtering.
     };
 
     /// @brief Update contacts data.
-    struct UpdateContactsData
-    {
+    struct UpdateContactsData {
         ContactCounter numAtMaxSubSteps = 0; ///< # at max sub-steps (lower the better).
         ContactCounter numUpdatedTOI = 0; ///< # updated TOIs (made valid).
         ContactCounter numValidTOI = 0; ///< # already valid TOIs.
@@ -863,8 +867,7 @@ private:
     };
 
     /// @brief Aggregate of user settable listener functions.
-    struct Listeners
-    {
+    struct Listeners {
         ShapeFunction shapeDestruction; ///< Listener for shape destruction.
         BodyShapeFunction detach; ///< Listener for shapes detaching from bodies.
         JointFunction jointDestruction; ///< Listener for joint destruction.
@@ -918,9 +921,8 @@ private:
 
     /// @brief Synchronizes the given body.
     /// @details This updates the broad phase dynamic tree data for all of the identified shapes.
-    ContactCounter Synchronize(const ProxyIDs& bodyProxies,
-                               const Transformation& xfm0, const Transformation& xfm1,
-                               const StepConf& conf);
+    ContactCounter Synchronize(const ProxyIDs& bodyProxies, const Transformation& xfm0,
+                               const Transformation& xfm1, const StepConf& conf);
 
     /// @brief Updates touching related state and notifies any listeners.
     /// @note Ideally this function is only called when a dependent change has occurred.
@@ -974,11 +976,13 @@ private:
     ObjectPool<ProxyIDs> m_bodyProxies;
 
     /// @brief Buffer of proxies to inspect for finding new contacts.
-    /// @note Built from @a m_fixturesForProxies and on body synchronization. Consumed by the finding-of-new-contacts.
+    /// @note Built from @a m_fixturesForProxies and on body synchronization. Consumed by the
+    /// finding-of-new-contacts.
     ProxyIDs m_proxiesForContacts;
 
     /// @brief Fixtures for proxies queue.
-    /// @note Capacity grows on calls to <code>CreateBody</code>, <code>SetBody</code>, and <code>SetShape</code>.
+    /// @note Capacity grows on calls to <code>CreateBody</code>, <code>SetBody</code>, and
+    /// <code>SetShape</code>.
     BodyShapeIDs m_fixturesForProxies;
 
     /// @brief Bodies for proxies queue.
@@ -1031,10 +1035,11 @@ static_assert(std::is_move_constructible_v<AabbTreeWorld>);
 static_assert(!std::is_copy_assignable_v<AabbTreeWorld>);
 static_assert(!std::is_move_assignable_v<AabbTreeWorld>);
 
-inline std::optional<pmr::StatsResource::Stats> GetResourceStats(const AabbTreeWorld& world) noexcept
+inline std::optional<pmr::StatsResource::Stats>
+GetResourceStats(const AabbTreeWorld& world) noexcept
 {
-    return world.m_statsResource.upstream_resource()
-        ? world.m_statsResource.GetStats(): std::optional<pmr::StatsResource::Stats>{};
+    return world.m_statsResource.upstream_resource() ? world.m_statsResource.GetStats()
+                                                     : std::optional<pmr::StatsResource::Stats>{};
 }
 
 inline const ProxyIDs& GetProxies(const AabbTreeWorld& world) noexcept
@@ -1133,12 +1138,14 @@ inline void SetEndContactListener(AabbTreeWorld& world, ContactFunction listener
     world.m_listeners.endContact = std::move(listener);
 }
 
-inline void SetPreSolveContactListener(AabbTreeWorld& world, ContactManifoldFunction listener) noexcept
+inline void SetPreSolveContactListener(AabbTreeWorld& world,
+                                       ContactManifoldFunction listener) noexcept
 {
     world.m_listeners.preSolveContact = std::move(listener);
 }
 
-inline void SetPostSolveContactListener(AabbTreeWorld& world, ContactImpulsesFunction listener) noexcept
+inline void SetPostSolveContactListener(AabbTreeWorld& world,
+                                        ContactImpulsesFunction listener) noexcept
 {
     world.m_listeners.postSolveContact = std::move(listener);
 }

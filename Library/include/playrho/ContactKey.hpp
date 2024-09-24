@@ -32,6 +32,7 @@
 // IWYU pragma: begin_exports
 
 #include <playrho/Settings.hpp>
+#include <cista.hpp>
 
 // IWYU pragma: end_exports
 
@@ -46,29 +47,34 @@ public:
 
     /// @brief Initializing constructor.
     constexpr ContactKey(ContactCounter fp1, ContactCounter fp2) noexcept
-        : m_ids{std::minmax(fp1, fp2)}
+        : m_ids{std::minmax(fp1, fp2).first, std::minmax(fp1, fp2).second}
     {
         // Intentionally empty
+    }
+
+    auto cista_members()
+    {
+        return std::tie(m_ids);
     }
 
     /// @brief Gets the minimum index value.
     constexpr ContactCounter GetMin() const noexcept
     {
-        return std::get<0>(m_ids);
+        return m_ids.first;
     }
 
     /// @brief Gets the maximum index value.
     constexpr ContactCounter GetMax() const noexcept
     {
-        return std::get<1>(m_ids);
+        return m_ids.second;
     }
 
 private:
     /// @brief The contact counter ID pair.
     /// @note Uses <code>std::pair</code> given that <code>std::minmax</code> returns
     ///   this type making it the most natural type for this class.
-    std::pair<ContactCounter, ContactCounter> m_ids{static_cast<ContactCounter>(-1),
-                                                    static_cast<ContactCounter>(-1)};
+    cista::offset::pair<ContactCounter, ContactCounter> m_ids{static_cast<ContactCounter>(-1),
+                                                              static_cast<ContactCounter>(-1)};
 };
 
 /// @brief Equality operator.

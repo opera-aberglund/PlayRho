@@ -77,10 +77,8 @@ Body::FlagsType Body::GetFlags(const BodyConf& bd) noexcept
     if (bd.enabled) {
         flags |= e_enabledFlag;
     }
-    if (bd.massDataDirty &&
-        (!bd.shapes.empty() ||
-         (bd.invMass != BodyConf::DefaultInvMass) ||
-         (bd.invRotI != BodyConf::DefaultInvRotI))) {
+    if (bd.massDataDirty && (!bd.shapes.empty() || (bd.invMass != BodyConf::DefaultInvMass) ||
+                             (bd.invRotI != BodyConf::DefaultInvRotI))) {
         flags |= e_massDataDirtyFlag;
     }
     return flags;
@@ -90,10 +88,9 @@ Body::Body(const BodyConf& bd)
     : m_xf{GetTransform1(bd.sweep)},
       m_sweep{bd.sweep},
       m_flags{GetFlags(bd)},
-      m_invMass{(bd.type == playrho::BodyType::Dynamic)
-                    ? bd.invMass : NonNegative<InvMass>{}},
-      m_invRotI{(bd.type == playrho::BodyType::Dynamic)
-                    ? bd.invRotI : NonNegative<InvRotInertia>{}},
+      m_invMass{(bd.type == playrho::BodyType::Dynamic) ? bd.invMass : NonNegative<InvMass>{}},
+      m_invRotI{(bd.type == playrho::BodyType::Dynamic) ? bd.invRotI
+                                                        : NonNegative<InvRotInertia>{}},
       m_linearDamping{bd.linearDamping},
       m_angularDamping{bd.angularDamping},
       m_shapes(bd.shapes.begin(), bd.shapes.end())
@@ -172,8 +169,7 @@ void Body::SetAwake() noexcept
 
 void Body::UnsetAwake() noexcept
 {
-    if (((m_flags & Body::e_velocityFlag) == 0) ||
-        ((m_flags & Body::e_autoSleepFlag) != 0)) {
+    if (((m_flags & Body::e_velocityFlag) == 0) || ((m_flags & Body::e_autoSleepFlag) != 0)) {
         UnsetAwakeFlag();
         m_underActiveTime = 0_s;
         m_linearVelocity = LinearVelocity2{};
@@ -256,7 +252,7 @@ Body& Body::Attach(ShapeID shapeId)
 bool Body::Detach(ShapeID shapeId)
 {
     const auto endIt = end(m_shapes);
-    const auto it = find(begin(m_shapes), endIt, shapeId);
+    const auto it = std::find(begin(m_shapes), endIt, shapeId);
     if (it != endIt) {
         m_shapes.erase(it);
         m_flags |= e_massDataDirtyFlag;

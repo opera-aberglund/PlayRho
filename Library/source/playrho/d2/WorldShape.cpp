@@ -54,7 +54,7 @@ ShapeCounter GetAssociationCount(const World& world)
 {
     auto sum = ShapeCounter{0};
     const auto bodies = GetBodies(world);
-    for_each(begin(bodies), end(bodies), [&world,&sum](const auto &b) {
+    std::for_each(begin(bodies), end(bodies), [&world, &sum](const auto& b) {
         sum += static_cast<ShapeCounter>(size(GetShapes(world, b)));
     });
     return sum;
@@ -63,8 +63,8 @@ ShapeCounter GetAssociationCount(const World& world)
 ShapeCounter GetUsedShapesCount(const World& world) noexcept
 {
     auto ids = std::set<ShapeID>{};
-    for (auto&& bodyId: GetBodies(world)) {
-        for (auto&& shapeId: GetShapes(world, bodyId)) {
+    for (auto&& bodyId : GetBodies(world)) {
+        for (auto&& shapeId : GetShapes(world, bodyId)) {
             ids.insert(shapeId);
         }
     }
@@ -162,7 +162,7 @@ MassData ComputeMassData(const World& world, const Span<const ShapeID>& ids)
     auto mass = 0_kg;
     auto I = RotInertia{};
     auto weightedCenter = Length2{};
-    for (const auto& shapeId: ids) {
+    for (const auto& shapeId : ids) {
         const auto shape = GetShape(world, shapeId);
         if (GetDensity(shape) > 0_kgpm2) {
             const auto massData = GetMassData(shape);
@@ -171,13 +171,14 @@ MassData ComputeMassData(const World& world, const Span<const ShapeID>& ids)
             I += RotInertia{massData.I};
         }
     }
-    const auto center = (mass > 0_kg)? (weightedCenter / (Real{mass/1_kg})): Length2{};
+    const auto center = (mass > 0_kg) ? (weightedCenter / (Real{mass / 1_kg})) : Length2{};
     return MassData{center, mass, I};
 }
 
 bool TestPoint(const World& world, BodyID bodyId, ShapeID shapeId, const Length2& p)
 {
-    return TestPoint(GetShape(world, shapeId), InverseTransform(p, GetTransformation(world, bodyId)));
+    return TestPoint(GetShape(world, shapeId),
+                     InverseTransform(p, GetTransformation(world, bodyId)));
 }
 
 NonNegativeFF<Real> GetDefaultFriction(const Shape& a, const Shape& b)

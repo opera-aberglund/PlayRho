@@ -7,18 +7,18 @@
 # Availability of CMAKE_PROJECT_VERSION first appeared in CMake 3.12
 cmake_minimum_required(VERSION 3.16.3)
 
-foreach(p
-    CMP0048 # OK to clear PROJECT_VERSION on project()
-    CMP0054 # CMake 3.1
-    CMP0056 # export EXE_LINKER_FLAGS to try_run
-    CMP0057 # Support no if() IN_LIST operator
-    CMP0063 # Honor visibility properties for all targets
-    CMP0077 # Allow option() overrides in importing projects
-    )
-  if(POLICY ${p})
-    cmake_policy(SET ${p} NEW)
-  endif()
-endforeach()
+foreach (p
+        CMP0048 # OK to clear PROJECT_VERSION on project()
+        CMP0054 # CMake 3.1
+        CMP0056 # export EXE_LINKER_FLAGS to try_run
+        CMP0057 # Support no if() IN_LIST operator
+        CMP0063 # Honor visibility properties for all targets
+        CMP0077 # Allow option() overrides in importing projects
+)
+    if (POLICY ${p})
+        cmake_policy(SET ${p} NEW)
+    endif ()
+endforeach ()
 
 # Set name for entire project. This establishes the project name in <PROJECT_NAME>_* variables.
 # Details at: https://cmake.org/cmake/help/latest/command/project.html#command:project
@@ -49,9 +49,9 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Defaults the CMAKE_BUILD_TYPE to Release
-if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Release)
-endif()
+if (NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)
+endif ()
 
 # Semicolon separated list of supported configuration types, only
 # supports Debug, Release, MinSizeRel, and RelWithDebInfo, anything
@@ -62,12 +62,12 @@ set(CMAKE_CONFIGURATION_TYPES "Debug;Release;" CACHE STRING "Semicolon separated
 # In clang++, the optimize for speed flag is '-Ot'. This option isn't supported on g++
 # however and it'd be nice to use an option that works for both compilers. So use '-O3'.
 # For Visual Studio Compilers, the speed optimization flag is /O2, which is the default setting for release builds
-if(MSVC)
-  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
-  add_definitions(-D_SCL_SECURE_NO_WARNINGS)
-else()
-  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
-endif()
+if (MSVC)
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
+    add_definitions(-D_SCL_SECURE_NO_WARNINGS)
+else ()
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
+endif ()
 
 string(COMPARE EQUAL "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}" is_top_level)
 
@@ -94,53 +94,57 @@ set(LIB_INSTALL_DIR lib${LIB_SUFFIX})
 # For info on MSVC Exception Handling Model see:
 #   https://msdn.microsoft.com/en-us/library/1deeycx5.aspx
 # Perhaps this should be a build option for all platforms?
-if(MSVC)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -EHsc")
-endif()
+if (MSVC)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -EHsc")
+endif ()
 
 # Make sure Microsoft Visual C++ (MSVC) uses the standards-conforming compiler behavior.
-if(MSVC)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /permissive-")
-endif()
+if (MSVC)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /permissive-")
+endif ()
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 
 # Library.
-if(PLAYRHO_BUILD_LIBRARY)
-  add_subdirectory(Library)
-endif()
+if (PLAYRHO_BUILD_LIBRARY)
+    add_subdirectory(Library)
+endif ()
 
 # HelloWorld console example.
-if(PLAYRHO_BUILD_HELLOWORLD)
-  add_subdirectory(HelloWorld)
-endif()
+if (PLAYRHO_BUILD_HELLOWORLD)
+    add_subdirectory(HelloWorld)
+endif ()
 
 # Testbed GUI application.
-if(PLAYRHO_BUILD_TESTBED)
-  add_subdirectory(Testbed)
-endif()
+if (PLAYRHO_BUILD_TESTBED)
+    add_subdirectory(Testbed)
+endif ()
 
 # Unit tests console application.
-if(PLAYRHO_BUILD_UNIT_TESTS)
+if (PLAYRHO_BUILD_UNIT_TESTS)
 
-  # Have CMake produce a "test" make target.
-  # From https://cmake.org/cmake/help/v3.4/command/enable_testing.html :
-  #   "Enable testing for current directory and below".
-  enable_testing()
+    # Have CMake produce a "test" make target.
+    # From https://cmake.org/cmake/help/v3.4/command/enable_testing.html :
+    #   "Enable testing for current directory and below".
+    enable_testing()
 
-  add_subdirectory(UnitTests)
-endif()
+    add_subdirectory(UnitTests)
+endif ()
 
-if(PLAYRHO_BUILD_BENCHMARK)
-  add_subdirectory(Benchmark)
-endif()
+if (PLAYRHO_BUILD_BENCHMARK)
+    add_subdirectory(Benchmark)
+endif ()
 
-if(PLAYRHO_BUILD_DOC)
-  add_subdirectory(Documentation)
-endif()
+if (PLAYRHO_BUILD_DOC)
+    add_subdirectory(Documentation)
+endif ()
 
-if(PLAYRHO_INSTALL)
-  set(CPACK_RESOURCE_FILE_LICENSE ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.txt)
-  include(CPack)
-endif()
+if (PLAYRHO_INSTALL)
+    set(CPACK_RESOURCE_FILE_LICENSE ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.txt)
+    include(CPack)
+endif ()
+
+target_link_libraries(${PROJECT_NAME} PRIVATE
+        cista
+)

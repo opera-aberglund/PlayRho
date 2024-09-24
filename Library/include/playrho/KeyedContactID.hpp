@@ -36,7 +36,7 @@
 namespace playrho {
 
 /// @brief Keyed contact identifier.
-using KeyedContactID = std::pair<ContactKey, ContactID>;
+using KeyedContactID = cista::offset::pair<ContactKey, ContactID>;
 
 } // namespace playrho
 

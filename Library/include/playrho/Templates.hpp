@@ -94,7 +94,7 @@ template <class T1, class T2 = T1>
 inline constexpr bool IsDivisableV = detail::IsDivisable<T1, T2>::value;
 
 /// @brief Determines whether the given type is an arithmetic type.
-template< class T >
+template <class T>
 inline constexpr bool IsArithmeticV = detail::IsArithmetic<T>::value;
 
 /// @brief Wrapper for reversing ranged-for loop ordering.
@@ -144,8 +144,8 @@ template <typename T>
 struct LexicographicalLess {
     /// @brief Checks whether the first argument is lexicographically less-than the
     ///   second argument.
-    constexpr auto operator()(const T& lhs, const T& rhs) const ->
-        decltype(std::lexicographical_compare(begin(lhs), end(lhs), begin(rhs), end(rhs)), true)
+    constexpr auto operator()(const T& lhs, const T& rhs) const
+        -> decltype(std::lexicographical_compare(begin(lhs), end(lhs), begin(rhs), end(rhs)), true)
     {
         using std::less;
         using ElementType = std::decay_t<decltype(*begin(lhs))>;
@@ -162,8 +162,8 @@ template <typename T>
 struct LexicographicalGreater {
     /// @brief Checks whether the first argument is lexicographically greater-than the
     ///   second argument.
-    constexpr auto operator()(const T& lhs, const T& rhs) const ->
-        decltype(std::lexicographical_compare(begin(lhs), end(lhs), begin(rhs), end(rhs)), true)
+    constexpr auto operator()(const T& lhs, const T& rhs) const
+        -> decltype(std::lexicographical_compare(begin(lhs), end(lhs), begin(rhs), end(rhs)), true)
     {
         using std::greater;
         using ElementType = std::decay_t<decltype(*begin(lhs))>;
@@ -180,8 +180,8 @@ template <typename T>
 struct LexicographicalLessEqual {
     /// @brief Checks whether the first argument is lexicographically less-than or
     ///   equal-to the second argument.
-    constexpr auto operator()(const T& lhs, const T& rhs) const ->
-        decltype(std::mismatch(begin(lhs), end(lhs), begin(rhs), end(rhs)), true)
+    constexpr auto operator()(const T& lhs, const T& rhs) const
+        -> decltype(std::mismatch(begin(lhs), end(lhs), begin(rhs), end(rhs)), true)
     {
         using std::get;
         using std::less;
@@ -201,8 +201,8 @@ template <typename T>
 struct LexicographicalGreaterEqual {
     /// @brief Checks whether the first argument is lexicographically greater-than or
     ///   equal-to the second argument.
-    constexpr auto operator()(const T& lhs, const T& rhs) const ->
-        decltype(std::mismatch(begin(lhs), end(lhs), begin(rhs), end(rhs)), true)
+    constexpr auto operator()(const T& lhs, const T& rhs) const
+        -> decltype(std::mismatch(begin(lhs), end(lhs), begin(rhs), end(rhs)), true)
     {
         using std::get;
         using std::greater;
@@ -219,10 +219,11 @@ struct LexicographicalGreaterEqual {
 /// @see EraseAll.
 template <typename T, typename U>
 auto EraseFirst(T& container, const U& value)
-    -> decltype(container.erase(find(begin(container), end(container), value)) != end(container))
+    -> decltype(container.erase(std::find(begin(container), end(container), value)) !=
+                end(container))
 {
     const auto endIt = end(container);
-    const auto it = find(begin(container), endIt, value);
+    const auto it = std::find(begin(container), endIt, value);
     if (it != endIt) {
         container.erase(it);
         return true;
@@ -268,8 +269,7 @@ using DecayedTypeIfNotSame = std::enable_if_t<!std::is_same_v<DecayedType, Check
 /// @brief A pre-C++20 constant expression implementation of <code>std::equal</code>.
 /// @see https://en.cppreference.com/w/cpp/algorithm/equal
 template <class InputIt1, class InputIt2>
-constexpr auto Equal(InputIt1 first1, InputIt1 last1,
-                     InputIt2 first2, InputIt2 last2)
+constexpr auto Equal(InputIt1 first1, InputIt1 last1, InputIt2 first2, InputIt2 last2)
     -> decltype(first1 == last1, first2 == last2, ++first1, ++first2, *first1 == *first2)
 {
     while (true) {

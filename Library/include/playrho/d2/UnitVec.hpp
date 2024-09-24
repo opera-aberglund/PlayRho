@@ -48,10 +48,10 @@ namespace playrho {
 
 // Explicitly import needed functions into this namespace to avoid including the math
 //  header which itself expects UnitVec to already be defined.
+using std::abs;
+using std::hypot;
 using std::isnormal;
 using std::sqrt;
-using std::hypot;
-using std::abs;
 
 namespace d2 {
 
@@ -119,35 +119,50 @@ public:
     /// @note This is the value for the 0/4 turned (0 angled) unit vector.
     /// @note This is the reverse perpendicular unit vector of the down oriented vector.
     /// @note This is the forward perpendicular unit vector of the up oriented vector.
-    static constexpr UnitVec GetRight() noexcept { return UnitVec{1, 0, {}}; }
+    static constexpr UnitVec GetRight() noexcept
+    {
+        return UnitVec{1, 0, {}};
+    }
 
     /// @brief Gets the up-ward oriented unit vector.
     /// @note This is the actual value for the 1/4 turned (90 degree angled) unit vector.
     /// @note This is the reverse perpendicular unit vector of the right oriented vector.
     /// @note This is the forward perpendicular unit vector of the left oriented vector.
-    static constexpr UnitVec GetUp() noexcept { return UnitVec{0, 1, {}}; }
+    static constexpr UnitVec GetUp() noexcept
+    {
+        return UnitVec{0, 1, {}};
+    }
 
     /// @brief Gets the left-ward oriented unit vector.
     /// @note This is the actual value for the 2/4 turned (180 degree angled) unit vector.
     /// @note This is the reverse perpendicular unit vector of the up oriented vector.
     /// @note This is the forward perpendicular unit vector of the down oriented vector.
-    static constexpr UnitVec GetLeft() noexcept { return UnitVec{-1, 0, {}}; }
+    static constexpr UnitVec GetLeft() noexcept
+    {
+        return UnitVec{-1, 0, {}};
+    }
 
     /// @brief Gets the down-ward oriented unit vector.
     /// @note This is the actual value for the 3/4 turned (270 degree angled) unit vector.
     /// @note This is the reverse perpendicular unit vector of the left oriented vector.
     /// @note This is the forward perpendicular unit vector of the right oriented vector.
-    static constexpr UnitVec GetDown() noexcept { return UnitVec{0, -1, {}}; }
+    static constexpr UnitVec GetDown() noexcept
+    {
+        return UnitVec{0, -1, {}};
+    }
 
     /// @brief Gets the non-oriented unit vector.
-    static constexpr UnitVec GetZero() noexcept { return UnitVec{}; }
+    static constexpr UnitVec GetZero() noexcept
+    {
+        return UnitVec{};
+    }
 
     /// @brief Gets the 45 degree unit vector.
     /// @details This is the unit vector in the positive X and Y quadrant where X == Y.
     static constexpr UnitVec GetUpRight() noexcept
     {
         // Note that 1/sqrt(2) == sqrt(2)/(sqrt(2)*sqrt(2)) == sqrt(2)/2
-        return UnitVec{+SquareRootTwo/Real(2), +SquareRootTwo/Real(2), {}};
+        return UnitVec{+SquareRootTwo / Real(2), +SquareRootTwo / Real(2), {}};
     }
 
     /// @brief Gets the -45 degree unit vector.
@@ -156,11 +171,14 @@ public:
     static constexpr UnitVec GetDownRight() noexcept
     {
         // Note that 1/sqrt(2) == sqrt(2)/(sqrt(2)*sqrt(2)) == sqrt(2)/2
-        return UnitVec{+SquareRootTwo/Real(2), -SquareRootTwo/Real(2), {}};
+        return UnitVec{+SquareRootTwo / Real(2), -SquareRootTwo / Real(2), {}};
     }
 
     /// @brief Gets the default fallback.
-    static constexpr UnitVec GetDefaultFallback() noexcept { return UnitVec{}; }
+    static constexpr UnitVec GetDefaultFallback() noexcept
+    {
+        return UnitVec{};
+    }
 
     /// @brief Polar coordinate.
     /// @details This is a direction and magnitude pair defined by the unit vector class.
@@ -218,12 +236,12 @@ public:
         // UnitVectorFromVectorAndBack/1000               1722 ns         1712 ns       408537
         // UnitVecFromAngle/1000                          3412 ns         3384 ns       195707
 #endif
-        if (isnormal(magnitudeSquared))
-        {
+        if (isnormal(magnitudeSquared)) {
             const auto magnitude = sqrt(magnitudeSquared);
             assert(isnormal(magnitude));
             const auto invMagnitude = Real{1} / magnitude;
-            return {UnitVec{value_type{x * invMagnitude}, value_type{y * invMagnitude}, {}}, magnitude};
+            return {UnitVec{value_type{x * invMagnitude}, value_type{y * invMagnitude}, {}},
+                    magnitude};
         }
 
         // Finally, try the more accurate and robust way...
@@ -260,26 +278,47 @@ public:
     }
 
     /// @brief Gets the max size.
-    static constexpr size_type max_size() noexcept { return N; }
+    static constexpr size_type max_size() noexcept
+    {
+        return N;
+    }
 
     /// @brief Gets the size.
-    static constexpr size_type size() noexcept { return N; }
+    static constexpr size_type size() noexcept
+    {
+        return N;
+    }
 
     /// @brief Whether empty.
     /// @note Always false for N > 0.
-    static constexpr bool empty() noexcept { return false; }
+    static constexpr bool empty() noexcept
+    {
+        return false;
+    }
 
     /// @brief Gets a "begin" iterator.
-    const_iterator begin() const noexcept { return m_elems.begin(); }
+    const_iterator begin() const noexcept
+    {
+        return m_elems.begin();
+    }
 
     /// @brief Gets an "end" iterator.
-    const_iterator end() const noexcept { return m_elems.end(); }
+    const_iterator end() const noexcept
+    {
+        return m_elems.end();
+    }
 
     /// @brief Gets a "begin" iterator.
-    const_iterator cbegin() const noexcept { return m_elems.cbegin(); }
+    const_iterator cbegin() const noexcept
+    {
+        return m_elems.cbegin();
+    }
 
     /// @brief Gets an "end" iterator.
-    const_iterator cend() const noexcept { return m_elems.cend(); }
+    const_iterator cend() const noexcept
+    {
+        return m_elems.cend();
+    }
 
     /// @brief Gets a reverse "begin" iterator.
     const_reverse_iterator crbegin() const noexcept
@@ -329,19 +368,34 @@ public:
     }
 
     /// @brief Gets the "X" value.
-    constexpr auto GetX() const noexcept { return m_elems[0]; }
+    constexpr auto GetX() const noexcept
+    {
+        return m_elems[0];
+    }
 
     /// @brief Gets the "Y" value.
-    constexpr auto GetY() const noexcept { return m_elems[1]; }
+    constexpr auto GetY() const noexcept
+    {
+        return m_elems[1];
+    }
 
     /// @brief Flips the X and Y values.
-    constexpr UnitVec FlipXY() const noexcept { return UnitVec{-GetX(), -GetY(), {}}; }
+    constexpr UnitVec FlipXY() const noexcept
+    {
+        return UnitVec{-GetX(), -GetY(), {}};
+    }
 
     /// @brief Flips the X value.
-    constexpr UnitVec FlipX() const noexcept { return UnitVec{-GetX(), GetY(), {}}; }
+    constexpr UnitVec FlipX() const noexcept
+    {
+        return UnitVec{-GetX(), GetY(), {}};
+    }
 
     /// @brief Flips the Y value.
-    constexpr UnitVec FlipY() const noexcept { return UnitVec{GetX(), -GetY(), {}}; }
+    constexpr UnitVec FlipY() const noexcept
+    {
+        return UnitVec{GetX(), -GetY(), {}};
+    }
 
     /// @brief Rotates the unit vector by the given amount.
     ///
@@ -378,16 +432,22 @@ public:
     }
 
     /// @brief Implicitly gets the underlying value via a cast or implicit conversion.
-    constexpr operator underlying_type () const noexcept
+    constexpr operator underlying_type() const noexcept
     {
         return m_elems;
     }
 
     /// @brief Negation operator.
-    constexpr UnitVec operator-() const noexcept { return UnitVec{-GetX(), -GetY(), {}}; }
+    constexpr UnitVec operator-() const noexcept
+    {
+        return UnitVec{-GetX(), -GetY(), {}};
+    }
 
     /// @brief Positive operator.
-    constexpr UnitVec operator+() const noexcept { return UnitVec{+GetX(), +GetY(), {}}; }
+    constexpr UnitVec operator+() const noexcept
+    {
+        return UnitVec{+GetX(), +GetY(), {}};
+    }
 
     /// @brief Gets the absolute value.
     constexpr UnitVec Absolute() const noexcept
@@ -395,8 +455,8 @@ public:
         return UnitVec{abs(GetX()), abs(GetY()), {}};
     }
 
-private:
-    struct Hidden {};
+    struct Hidden {
+    };
 
     /// @brief Initializing constructor.
     constexpr UnitVec(value_type x, value_type y, Hidden) noexcept : m_elems{x, y}
@@ -404,17 +464,24 @@ private:
         // Intentionally empty.
     }
 
+private:
     underlying_type m_elems = {}; ///< Element values.
 };
 
 // Free functions...
 
 /// @brief Gets the "X-axis".
-constexpr UnitVec GetXAxis(const UnitVec& rot) noexcept { return rot; }
+constexpr UnitVec GetXAxis(const UnitVec& rot) noexcept
+{
+    return rot;
+}
 
 /// @brief Gets the "Y-axis".
 /// @note This is the reverse perpendicular vector of the given unit vector.
-constexpr UnitVec GetYAxis(const UnitVec& rot) noexcept { return rot.GetRevPerpendicular(); }
+constexpr UnitVec GetYAxis(const UnitVec& rot) noexcept
+{
+    return rot.GetRevPerpendicular();
+}
 
 /// @brief Equality operator.
 constexpr bool operator==(const UnitVec& a, const UnitVec& b) noexcept
@@ -468,10 +535,11 @@ template <std::size_t I>
 constexpr UnitVec::value_type get(const UnitVec& v) noexcept
 {
     static_assert(I < UnitVec::size(), "Index out of bounds in playrho::get<> (playrho::UnitVec)");
-    switch (I)
-    {
-        case 0: return v.GetX();
-        case 1: return v.GetY();
+    switch (I) {
+    case 0:
+        return v.GetX();
+    case 1:
+        return v.GetY();
     }
 }
 
@@ -524,11 +592,14 @@ inline d2::UnitVec abs(const d2::UnitVec& v) noexcept
 } // namespace playrho
 
 /// @brief Tuple size info for <code>playrho::d2::UnitVec</code>.
-template<>
-class std::tuple_size< playrho::d2::UnitVec >: public std::integral_constant<std::size_t, playrho::d2::UnitVec::size()> {};
+template <>
+class std::tuple_size<playrho::d2::UnitVec>
+    : public std::integral_constant<std::size_t, playrho::d2::UnitVec::size()>
+{
+};
 
 /// @brief Tuple element type info for <code>playrho::d2::UnitVec</code>.
-template<std::size_t I>
+template <std::size_t I>
 class std::tuple_element<I, playrho::d2::UnitVec>
 {
 public:
