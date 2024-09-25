@@ -39,7 +39,7 @@ namespace playrho::d2::detail {
 /// @brief Interface between type class template instantiated for and the WorldConcept class.
 /// @see WorldConcept.
 template <class T>
-struct WorldModel final : WorldConcept {
+struct WorldModel final {
     /// @brief Type alias for the type of the data held.
     using data_type = T;
 
@@ -51,46 +51,51 @@ struct WorldModel final : WorldConcept {
         // Intentionally empty.
     }
 
+    auto cista_members()
+    {
+        return std::tie(data);
+    }
+
     // Listener Member Functions
 
     /// @copydoc WorldConcept::SetShapeDestructionListener_
-    void SetShapeDestructionListener_(ShapeFunction listener) noexcept override
+    void SetShapeDestructionListener_(ShapeFunction listener) noexcept 
     {
         SetShapeDestructionListener(data, std::move(listener));
     }
 
     /// @copydoc WorldConcept::SetDetachListener_
-    void SetDetachListener_(BodyShapeFunction listener) noexcept override
+    void SetDetachListener_(BodyShapeFunction listener) noexcept 
     {
         SetDetachListener(data, std::move(listener));
     }
 
     /// @copydoc WorldConcept::SetJointDestructionListener_
-    void SetJointDestructionListener_(JointFunction listener) noexcept override
+    void SetJointDestructionListener_(JointFunction listener) noexcept 
     {
         SetJointDestructionListener(data, std::move(listener));
     }
 
     /// @copydoc WorldConcept::SetBeginContactListener_
-    void SetBeginContactListener_(ContactFunction listener) noexcept override
+    void SetBeginContactListener_(ContactFunction listener) noexcept 
     {
         SetBeginContactListener(data, std::move(listener));
     }
 
     /// @copydoc WorldConcept::SetEndContactListener_
-    void SetEndContactListener_(ContactFunction listener) noexcept override
+    void SetEndContactListener_(ContactFunction listener) noexcept 
     {
         SetEndContactListener(data, std::move(listener));
     }
 
     /// @copydoc WorldConcept::SetPreSolveContactListener_
-    void SetPreSolveContactListener_(ContactManifoldFunction listener) noexcept override
+    void SetPreSolveContactListener_(ContactManifoldFunction listener) noexcept 
     {
         SetPreSolveContactListener(data, std::move(listener));
     }
 
     /// @copydoc WorldConcept::SetPostSolveContactListener_
-    void SetPostSolveContactListener_(ContactImpulsesFunction listener) noexcept override
+    void SetPostSolveContactListener_(ContactImpulsesFunction listener) noexcept 
     {
         SetPostSolveContactListener(data, std::move(listener));
     }
@@ -98,19 +103,19 @@ struct WorldModel final : WorldConcept {
     // Miscellaneous Member Functions
 
     /// @copydoc WorldConcept::Clone_
-    std::unique_ptr<WorldConcept> Clone_() const override
+    cista::offset::unique_ptr<WorldModel> Clone_() const
     {
-        return std::make_unique<WorldModel<T>>(data);
+        return cista::offset::make_unique<WorldModel<T>>(data);
     }
 
     /// @copydoc WorldConcept::GetType_
-    TypeID GetType_() const noexcept override
+    TypeID GetType_() const noexcept 
     {
         return GetTypeID<data_type>();
     }
 
     /// @copydoc WorldConcept::GetData_
-    const void* GetData_() const noexcept override
+    const void* GetData_() const noexcept 
     {
         // Note address of "data" not necessarily same as address of "this" since
         // base class is virtual.
@@ -118,14 +123,14 @@ struct WorldModel final : WorldConcept {
     }
 
     /// @copydoc WorldConcept::GetData_
-    void* GetData_() noexcept override
+    void* GetData_() noexcept 
     {
         // Note address of "data" not necessarily same as address of "this" since
         // base class is virtual.
         return &data;
     }
 
-    bool IsEqual_(const WorldConcept& other) const noexcept override
+    bool IsEqual_(const WorldModel& other) const noexcept
     {
         // Would be preferable to do this without using any kind of RTTI system.
         // But how would that be done?
@@ -134,67 +139,67 @@ struct WorldModel final : WorldConcept {
     }
 
     /// @copydoc WorldConcept::GetResourceStats_
-    std::optional<pmr::StatsResource::Stats> GetResourceStats_() const noexcept override
+    std::optional<pmr::StatsResource::Stats> GetResourceStats_() const noexcept 
     {
         return GetResourceStats(data);
     }
 
     /// @copydoc WorldConcept::Clear_
-    void Clear_() noexcept override
+    void Clear_() noexcept 
     {
         Clear(data);
     }
 
     /// @copydoc WorldConcept::Step_
-    StepStats Step_(const StepConf& conf) override
+    StepStats Step_(const StepConf& conf) 
     {
         return Step(data, conf);
     }
 
     /// @copydoc WorldConcept::IsStepComplete_
-    bool IsStepComplete_() const noexcept override
+    bool IsStepComplete_() const noexcept 
     {
         return IsStepComplete(data);
     }
 
     /// @copydoc WorldConcept::GetSubStepping_
-    bool GetSubStepping_() const noexcept override
+    bool GetSubStepping_() const noexcept 
     {
         return GetSubStepping(data);
     }
 
     /// @copydoc WorldConcept::SetSubStepping_
-    void SetSubStepping_(bool flag) noexcept override
+    void SetSubStepping_(bool flag) noexcept 
     {
         SetSubStepping(data, flag);
     }
 
     /// @copydoc WorldConcept::GetTree_
-    const DynamicTree& GetTree_() const noexcept override
+    const DynamicTree& GetTree_() const noexcept 
     {
         return GetTree(data);
     }
 
     /// @copydoc WorldConcept::IsLocked_
-    bool IsLocked_() const noexcept override
+    bool IsLocked_() const noexcept 
     {
         return IsLocked(data);
     }
 
     /// @copydoc WorldConcept::ShiftOrigin_
-    void ShiftOrigin_(const Length2& newOrigin) override
+    void ShiftOrigin_(const Length2& newOrigin) 
     {
         ShiftOrigin(data, newOrigin);
     }
 
     /// @copydoc WorldConcept::GetVertexRadiusInterval_
-    Interval<Positive<Length>> GetVertexRadiusInterval_() const noexcept override
+    Interval<Positive<Length>> GetVertexRadiusInterval_() const noexcept 
     {
         return GetVertexRadiusInterval(data);
     }
 
     /// @copydoc WorldConcept::GetInvDeltaTime_
-    Frequency GetInvDeltaTime_() const noexcept override
+    Frequency GetInvDeltaTime_() const noexcept 
     {
         return GetInvDeltaTime(data);
     }
@@ -202,62 +207,62 @@ struct WorldModel final : WorldConcept {
     // Body Member Functions.
 
     /// @copydoc WorldConcept::GetBodyRange_
-    BodyCounter GetBodyRange_() const noexcept override
+    BodyCounter GetBodyRange_() const noexcept 
     {
         return GetBodyRange(data);
     }
 
     /// @copydoc WorldConcept::GetBodies_
-    cista::offset::vector<BodyID> GetBodies_() const override
+    cista::offset::vector<BodyID> GetBodies_() const 
     {
         return GetBodies(data);
     }
 
     /// @copydoc WorldConcept::GetBodiesForProxies_
-    cista::offset::vector<BodyID> GetBodiesForProxies_() const override
+    cista::offset::vector<BodyID> GetBodiesForProxies_() const 
     {
         return GetBodiesForProxies(data);
     }
 
     /// @copydoc WorldConcept::CreateBody_
-    BodyID CreateBody_(const Body& body) override
+    BodyID CreateBody_(const Body& body) 
     {
         return CreateBody(data, body);
     }
 
     /// @copydoc WorldConcept::GetBody_
-    Body GetBody_(BodyID id) const override
+    Body GetBody_(BodyID id) const 
     {
         return GetBody(data, id);
     }
 
     /// @copydoc WorldConcept::SetBody_
-    void SetBody_(BodyID id, const Body& value) override
+    void SetBody_(BodyID id, const Body& value) 
     {
         SetBody(data, id, value);
     }
 
     /// @copydoc WorldConcept::Destroy_(BodyID)
-    void Destroy_(BodyID id) override
+    void Destroy_(BodyID id) 
     {
         Destroy(data, id);
     }
 
     /// @copydoc WorldConcept::GetJoints_(BodyID) const
-    cista::offset::vector<std::pair<BodyID, JointID>> GetJoints_(BodyID id) const override
+    cista::offset::vector<std::pair<BodyID, JointID>> GetJoints_(BodyID id) const 
     {
         return GetJoints(data, id);
     }
 
     /// @copydoc WorldConcept::GetContacts_(BodyID) const
     cista::offset::vector<cista::offset::pair<ContactKey, ContactID>>
-    GetContacts_(BodyID id) const override
+    GetContacts_(BodyID id) const 
     {
         return GetContacts(data, id);
     }
 
     /// @copydoc WorldConcept::GetShapes_
-    std::vector<ShapeID> GetShapes_(BodyID id) const override
+    std::vector<ShapeID> GetShapes_(BodyID id) const 
     {
         return GetShapes(data, id);
     }
@@ -265,37 +270,37 @@ struct WorldModel final : WorldConcept {
     // Joint Member Functions
 
     /// @copydoc WorldConcept::GetJointRange_
-    JointCounter GetJointRange_() const noexcept override
+    JointCounter GetJointRange_() const noexcept 
     {
         return GetJointRange(data);
     }
 
     /// @copydoc WorldConcept::GetJoints_
-    cista::offset::vector<JointID> GetJoints_() const override
+    cista::offset::vector<JointID> GetJoints_() const 
     {
         return GetJoints(data);
     }
 
     /// @copydoc WorldConcept::CreateJoint_
-    JointID CreateJoint_(const Joint& def) override
+    JointID CreateJoint_(const Joint& def) 
     {
         return CreateJoint(data, def);
     }
 
     /// @copydoc WorldConcept::GetJoint_
-    Joint GetJoint_(JointID id) const override
+    Joint GetJoint_(JointID id) const 
     {
         return GetJoint(data, id);
     }
 
     /// @copydoc WorldConcept::SetJoint_
-    void SetJoint_(JointID id, const Joint& def) override
+    void SetJoint_(JointID id, const Joint& def) 
     {
         return SetJoint(data, id, def);
     }
 
     /// @copydoc WorldConcept::Destroy_
-    void Destroy_(JointID id) override
+    void Destroy_(JointID id) 
     {
         return Destroy(data, id);
     }
@@ -303,31 +308,31 @@ struct WorldModel final : WorldConcept {
     // Shape Member Functions
 
     /// @copydoc WorldConcept::GetShapeRange_
-    ShapeCounter GetShapeRange_() const noexcept override
+    ShapeCounter GetShapeRange_() const noexcept 
     {
         return GetShapeRange(data);
     }
 
     /// @copydoc WorldConcept::CreateShape_
-    ShapeID CreateShape_(const Shape& def) override
+    ShapeID CreateShape_(const Shape& def) 
     {
         return CreateShape(data, def);
     }
 
     /// @copydoc WorldConcept::GetShape_
-    Shape GetShape_(ShapeID id) const override
+    Shape GetShape_(ShapeID id) const 
     {
         return GetShape(data, id);
     }
 
     /// @copydoc WorldConcept::SetShape_
-    void SetShape_(ShapeID id, const Shape& def) override
+    void SetShape_(ShapeID id, const Shape& def) 
     {
         SetShape(data, id, def);
     }
 
     /// @copydoc WorldConcept::Destroy_
-    void Destroy_(ShapeID id) override
+    void Destroy_(ShapeID id) 
     {
         Destroy(data, id);
     }
@@ -335,46 +340,40 @@ struct WorldModel final : WorldConcept {
     // Contact Member Functions
 
     /// @copydoc WorldConcept::GetContactRange_
-    ContactCounter GetContactRange_() const noexcept override
+    ContactCounter GetContactRange_() const noexcept 
     {
         return GetContactRange(data);
     }
 
     /// @copydoc WorldConcept::GetContacts_
-    cista::offset::vector<KeyedContactID> GetContacts_() const override
+    cista::offset::vector<KeyedContactID> GetContacts_() const 
     {
         return GetContacts(data);
     }
 
     /// @copydoc WorldConcept::GetContact_
-    Contact GetContact_(ContactID id) const override
+    Contact GetContact_(ContactID id) const 
     {
         return GetContact(data, id);
     }
 
     /// @copydoc WorldConcept::SetContact_
-    void SetContact_(ContactID id, const Contact& value) override
+    void SetContact_(ContactID id, const Contact& value) 
     {
         SetContact(data, id, value);
     }
 
     /// @copydoc WorldConcept::GetManifold_
-    Manifold GetManifold_(ContactID id) const override
+    Manifold GetManifold_(ContactID id) const 
     {
         return GetManifold(data, id);
     }
 
     /// @copydoc WorldConcept::SetManifold_
-    void SetManifold_(ContactID id, const Manifold& value) override
+    void SetManifold_(ContactID id, const Manifold& value) 
     {
         SetManifold(data, id, value);
     }
-
-    std::vector<uint8_t> Serialize_() const override
-    {
-        return cista::serialize(data);
-    }
-
     // Member variables
 
     data_type data; ///< Data.

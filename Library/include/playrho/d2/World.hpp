@@ -73,6 +73,8 @@
 #include <playrho/d2/detail/WorldConcept.hpp>
 #include <playrho/d2/detail/WorldModel.hpp>
 
+#include "AabbTreeWorld.hpp"
+
 namespace playrho::d2 {
 
 class World;
@@ -744,7 +746,8 @@ public:
               typename Tp = std::enable_if_t<
                   !std::is_same_v<DT, World> && !std::is_same_v<DT, WorldConf>, DT>,
               typename = std::enable_if_t<std::is_constructible_v<DT, T>>>
-    explicit World(T&& arg) : m_impl{std::make_unique<detail::WorldModel<Tp>>(std::forward<T>(arg))}
+    explicit World(T&& arg)
+        : m_impl{cista::offset::make_unique<detail::WorldModel<Tp>>(std::forward<T>(arg))}
     {
         // Intentionally empty.
     }
@@ -773,6 +776,11 @@ public:
     {
         m_impl = std::move(other.m_impl);
         return *this;
+    }
+
+    auto cista_members()
+    {
+        return std::tie(m_impl);
     }
 
     // Listener friend functions...
@@ -843,13 +851,10 @@ public:
     friend Manifold GetManifold(const World& world, ContactID id);
     friend void SetManifold(World& world, ContactID id, const Manifold& value);
 
-    // Serialization
-    friend std::vector<uint8_t> Serialize(const World& world);
-
 private:
     /// @brief Pointer to implementation (PIMPL)
     /// @see https://en.cppreference.com/w/cpp/language/pimpl
-    std::unique_ptr<detail::WorldConcept> m_impl;
+    cista::offset::unique_ptr<detail::WorldModel<AabbTreeWorld>> m_impl;
 };
 
 // State & confirm intended compile-time traits of World class...
@@ -1107,17 +1112,6 @@ inline Manifold GetManifold(const World& world, ContactID id)
 inline void SetManifold(World& world, ContactID id, const Manifold& value)
 {
     world.m_impl->SetManifold_(id, value);
-}
-
-inline std::vector<uint8_t> Serialize(const World& world)
-{
-    return world.m_impl->Serialize_();
-}
-
-template <typename T>
-World Deserialize(const std::vector<uint8_t>& data)
-{
-    return World{*cista::deserialize<T>(data)};
 }
 
 // Free functions...
