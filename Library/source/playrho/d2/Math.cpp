@@ -42,7 +42,7 @@ Position GetPosition(const Position& pos0, const Position& pos1, Real beta) noex
     // pos0 + (pos1 * beta - pos0 * beta)
     // pos0 + (pos1 - pos0) * beta
 
-//#define USE_NORMALIZATION_FOR_ANGULAR_LERP 1
+// #define USE_NORMALIZATION_FOR_ANGULAR_LERP 1
 #if defined(USE_NORMALIZATION_FOR_ANGULAR_LERP)
     constexpr auto twoPi = Real(2) * Pi;
     constexpr auto rTwoPi = Real(1) / twoPi;
@@ -70,8 +70,8 @@ Position Cap(Position pos, const ConstraintSolverConf& conf)
     return pos;
 }
 
-LinearVelocity2 GetContactRelVelocity(const Velocity& velA, const Length2& relA, const Velocity& velB,
-                                      const Length2& relB) noexcept
+LinearVelocity2 GetContactRelVelocity(const Velocity& velA, const Length2& relA,
+                                      const Velocity& velB, const Length2& relB) noexcept
 {
 #if 0 // Using std::fma appears to be slower!
     const auto revPerpRelB = GetRevPerpendicular(relB);
@@ -103,9 +103,9 @@ LinearVelocity2 GetContactRelVelocity(const Velocity& velA, const Length2& relA,
 #endif
 }
 
-std::vector<UnitVec> GetFwdNormalsVector(const std::vector<Length2>& vertices)
+cista::offset::vector<UnitVec> GetFwdNormalsVector(const cista::offset::vector<Length2>& vertices)
 {
-    auto normals = std::vector<UnitVec>();
+    auto normals = cista::offset::vector<UnitVec>();
     const auto count = static_cast<VertexCounter>(size(vertices));
     normals.reserve(count);
     if (count > 1) {

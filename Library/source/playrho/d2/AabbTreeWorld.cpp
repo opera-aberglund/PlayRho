@@ -639,12 +639,12 @@ auto ForMatchingProxies(const DynamicTree& tree, ShapeID shapeId, Function f)
     }
 }
 
-std::pair<std::vector<ShapeID>, std::vector<ShapeID>> GetOldAndNewShapeIDs(const Body& oldBody,
-                                                                           const Body& newBody)
+std::pair<cista::offset::vector<ShapeID>, cista::offset::vector<ShapeID>>
+GetOldAndNewShapeIDs(const Body& oldBody, const Body& newBody)
 {
     if (IsEnabled(oldBody) && IsEnabled(newBody)) {
-        auto oldShapeIds = std::vector<ShapeID>{};
-        auto newShapeIds = std::vector<ShapeID>{};
+        auto oldShapeIds = cista::offset::vector<ShapeID>{};
+        auto newShapeIds = cista::offset::vector<ShapeID>{};
         auto oldmap = std::map<ShapeID, int>{};
         auto newmap = std::map<ShapeID, int>{};
         for (auto&& i : oldBody.GetShapes()) {
@@ -668,10 +668,10 @@ std::pair<std::vector<ShapeID>, std::vector<ShapeID>> GetOldAndNewShapeIDs(const
         return {oldShapeIds, newShapeIds};
     }
     if (IsEnabled(newBody)) {
-        return {std::vector<ShapeID>{}, newBody.GetShapes()};
+        return {cista::offset::vector<ShapeID>{}, newBody.GetShapes()};
     }
     if (IsEnabled(oldBody)) {
-        return {oldBody.GetShapes(), std::vector<ShapeID>{}};
+        return {oldBody.GetShapes(), cista::offset::vector<ShapeID>{}};
     }
     return {};
 }
@@ -2923,7 +2923,7 @@ bool Detach(AabbTreeWorld& world, BodyID id, ShapeID shapeID)
     return false;
 }
 
-const std::vector<ShapeID>& GetShapes(const AabbTreeWorld& world, BodyID id)
+const cista::offset::vector<ShapeID>& GetShapes(const AabbTreeWorld& world, BodyID id)
 {
     return GetBody(world, id).GetShapes();
 }

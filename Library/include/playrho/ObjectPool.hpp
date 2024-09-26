@@ -41,13 +41,18 @@ public:
     using value_type = T;
 
     /// @brief Size type.
-    using size_type = typename std::vector<value_type>::size_type;
+    using size_type = typename cista::offset::vector<value_type>::size_type;
 
     /// @brief Reference type alias.
-    using reference = typename std::vector<value_type>::reference;
+    using reference = typename cista::offset::vector<value_type>::reference;
 
     /// @brief Constant reference type alias.
-    using const_reference = typename std::vector<value_type>::const_reference;
+    using const_reference = typename cista::offset::vector<value_type>::const_reference;
+
+    auto cista_members()
+    {
+        return std::tie(m_data, m_free);
+    }
 
     /// @brief Gets the index of the given pointer.
     /// @return -1 if the given pointer is not within the range of the allocator's allocation,
@@ -121,9 +126,8 @@ public:
     /// @see https://en.wikipedia.org/wiki/Big_O_notation
     bool FindFree(size_type index) const noexcept
     {
-        return std::any_of(std::begin(m_free), std::end(m_free), [index](size_type element) {
-            return element == index;
-        });
+        return std::any_of(std::begin(m_free), std::end(m_free),
+                           [index](size_type element) { return element == index; });
     }
 
     /// @brief Array index operator.
@@ -191,25 +195,25 @@ public:
     }
 
     /// @brief Gets the beginning iterator over the data of this container.
-    typename std::vector<value_type>::iterator begin() noexcept
+    typename cista::offset::vector<value_type>::iterator begin() noexcept
     {
         return m_data.begin();
     }
 
     /// @brief Gets the ending iterator over the data of this container.
-    typename std::vector<value_type>::iterator end() noexcept
+    typename cista::offset::vector<value_type>::iterator end() noexcept
     {
         return m_data.end();
     }
 
     /// @brief Gets the beginning iterator over the data of this container.
-    typename std::vector<value_type>::const_iterator begin() const noexcept
+    typename cista::offset::vector<value_type>::const_iterator begin() const noexcept
     {
         return m_data.begin();
     }
 
     /// @brief Gets the ending iterator over the data of this container.
-    typename std::vector<value_type>::const_iterator end() const noexcept
+    typename cista::offset::vector<value_type>::const_iterator end() const noexcept
     {
         return m_data.end();
     }
@@ -253,8 +257,8 @@ public:
     }
 
 private:
-    std::vector<value_type> m_data; ///< Array data (both used & free).
-    std::vector<size_type> m_free; ///< Indices of free elements.
+    cista::offset::vector<value_type> m_data; ///< Array data (both used & free).
+    cista::offset::vector<size_type> m_free; ///< Indices of free elements.
 };
 
 /// @brief Gets the number of elements that are used in the specified structure.

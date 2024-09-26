@@ -265,7 +265,7 @@ std::size_t FindLowestRightMostVertex(Span<const Length2> vertices) noexcept;
 /// @return Counter-clockwise vertices that "gift-wrap" the given vertices starting with
 ///   lowest right-most vertex.
 /// @see FindLowestRightMostVertex.
-std::vector<Length2> GetConvexHullAsVector(Span<const Length2> vertices);
+cista::offset::vector<Length2> GetConvexHullAsVector(Span<const Length2> vertices);
 
 } // namespace playrho::d2
 

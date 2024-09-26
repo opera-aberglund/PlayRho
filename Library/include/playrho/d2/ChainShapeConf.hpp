@@ -53,19 +53,24 @@ namespace playrho::d2 {
 /// @image html SelfIntersect.png
 /// @warning The chain will not collide properly if there are self-intersections.
 /// @ingroup PartsGroup
-struct ChainShapeConf : public ShapeBuilder<ChainShapeConf>
-{
+struct ChainShapeConf : public ShapeBuilder<ChainShapeConf> {
     /// @invariant The normals provided are always the forward & reverse normals of each
     ///   segment of the assigned vertices.
-    class VerticesWithNormals {
-        std::vector<Length2> m_vertices{}; ///< Vertices
-        std::vector<UnitVec> m_normals{}; ///< Normals.
+    class VerticesWithNormals
+    {
+        cista::offset::vector<Length2> m_vertices{}; ///< Vertices
+        cista::offset::vector<UnitVec> m_normals{}; ///< Normals.
     public:
         /// @brief Default constructor.
         VerticesWithNormals() noexcept = default;
 
         /// @brief Initializing constructor.
-        VerticesWithNormals(std::vector<Length2> vertices);
+        VerticesWithNormals(cista::offset::vector<Length2> vertices);
+
+        auto cista_members()
+        {
+            return std::tie(m_vertices, m_normals);
+        }
 
         /// @brief Gets vertices this instance was constructed with.
         auto GetVertices() const noexcept -> decltype((m_vertices))
@@ -80,11 +85,17 @@ struct ChainShapeConf : public ShapeBuilder<ChainShapeConf>
         }
 
         /// @brief Equals operator support.
-        friend auto operator==(const VerticesWithNormals& lhs, const VerticesWithNormals& rhs) noexcept -> bool
+        friend auto operator==(const VerticesWithNormals& lhs,
+                               const VerticesWithNormals& rhs) noexcept -> bool
         {
             return lhs.m_vertices == rhs.m_vertices;
         }
     };
+
+    auto cista_members()
+    {
+        return std::tie(*static_cast<BaseShapeConf*>(this), vertexRadius, segments);
+    }
 
     /// @brief Default vertex radius.
     static constexpr auto DefaultVertexRadius = NonNegative<Length>{DefaultLinearSlop * Real{2}};
@@ -101,11 +112,13 @@ struct ChainShapeConf : public ShapeBuilder<ChainShapeConf>
     /// @brief Sets the configuration up for representing a chain of vertices as given.
     /// @note This function provides the strong exception guarantee. The state of this instance
     ///   won't change if this function throws any exception.
-    /// @throws InvalidArgument if the number of vertices given is greater than <code>MaxChildCount</code>.
+    /// @throws InvalidArgument if the number of vertices given is greater than
+    /// <code>MaxChildCount</code>.
     /// @post <code>GetVertices()</code> returns the vertices given.
     /// @post <code>GetVertexCount()</code> returns the number of vertices given.
-    /// @post <code>GetVertex(i)</code> returns the vertex <code>vertices[i]</code> for all valid indices.
-    ChainShapeConf& Set(std::vector<Length2> vertices);
+    /// @post <code>GetVertex(i)</code> returns the vertex <code>vertices[i]</code> for all valid
+    /// indices.
+    ChainShapeConf& Set(cista::offset::vector<Length2> vertices);
 
     /// @brief Adds the given vertex.
     ChainShapeConf& Add(const Length2& vertex);

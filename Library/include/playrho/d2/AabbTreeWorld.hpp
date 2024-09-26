@@ -590,10 +590,26 @@ public:
     /// @note This type is not assignable.
     AabbTreeWorld& operator=(AabbTreeWorld&& other) = delete;
 
+    // return // newline!
+    //     (lhs.m_bodyBuffer == rhs.m_bodyBuffer) && // newline!
+    //     (lhs.m_shapeBuffer == rhs.m_shapeBuffer) && // newline!
+    //     (lhs.m_jointBuffer == rhs.m_jointBuffer) && // newline!
+    //     (lhs.m_bodyJoints == rhs.m_bodyJoints) && // newline!
+    //     (lhs.m_bodyProxies == rhs.m_bodyProxies) && // newline!
+    //     (lhs.m_proxiesForContacts == rhs.m_proxiesForContacts) && // newline!
+    //     (lhs.m_fixturesForProxies == rhs.m_fixturesForProxies) && // newline!
+    //     (lhs.m_bodiesForSync == rhs.m_bodiesForSync) && // newline!
+    //     (lhs.m_bodies == rhs.m_bodies) && // newline!
+    //     (lhs.m_joints == rhs.m_joints) && // newline!
+    //     (lhs.m_flags == rhs.m_flags) && // newline!
+    //     (lhs.m_vertexRadius == rhs.m_vertexRadius) && // newline
+    //     SameTouching(World{lhs}, World{rhs});
+
     auto cista_members()
     {
-        return std::tie(m_proxiesForContacts, m_fixturesForProxies, m_bodiesForSync, m_bodies,
-                        m_joints, m_contacts);
+        return std::tie(m_bodyBuffer, m_shapeBuffer, m_bodyJoints, m_bodyProxies,
+                        m_proxiesForContacts, m_fixturesForProxies, m_bodiesForSync, m_bodies,
+                        m_joints, m_flags, m_vertexRadius);
     }
 
     // Listener friend functions...
@@ -1178,7 +1194,7 @@ bool Detach(AabbTreeWorld& world, BodyID id, ShapeID shapeID);
 /// @throws std::out_of_range If given an invalid body identifier.
 /// @throws WrongState if this function is called while the world is locked.
 /// @relatedalso AabbTreeWorld
-const std::vector<ShapeID>& GetShapes(const AabbTreeWorld& world, BodyID id);
+const cista::offset::vector<ShapeID>& GetShapes(const AabbTreeWorld& world, BodyID id);
 
 } // namespace playrho::d2
 

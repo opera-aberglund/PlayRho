@@ -35,8 +35,7 @@ PolygonShapeConf::PolygonShapeConf(Length hx, Length hy, const PolygonShapeConf&
     SetAsBox(hx, hy);
 }
 
-PolygonShapeConf::PolygonShapeConf(Span<const Length2> points,
-                                   const PolygonShapeConf& conf)
+PolygonShapeConf::PolygonShapeConf(Span<const Length2> points, const PolygonShapeConf& conf)
     : ShapeBuilder{conf}
 {
     Set(points);
@@ -45,7 +44,7 @@ PolygonShapeConf::PolygonShapeConf(Span<const Length2> points,
 PolygonShapeConf& PolygonShapeConf::SetAsBox(Length hx, Length hy)
 {
     // vertices must be counter-clockwise
-    auto vertices = std::vector<Length2>{
+    auto vertices = cista::offset::vector<Length2>{
         {+hx, -hy}, // bottom right
         {+hx, +hy}, // top right}
         {-hx, +hy}, // top left
@@ -71,7 +70,7 @@ PolygonShapeConf& PolygonShapeConf::SetAsBox(Length hx, Length hy, const Length2
 PolygonShapeConf& PolygonShapeConf::Transform(const Transformation& xfm)
 {
     auto vertices = ngon.GetVertices();
-    for (auto&& vertex: vertices) {
+    for (auto&& vertex : vertices) {
         vertex = playrho::d2::Transform(vertex, xfm);
     }
     ngon = NgonWithFwdNormals<>{std::move(vertices)};

@@ -46,6 +46,11 @@ class VertexSet;
 class ConvexHull
 {
 public:
+    auto cista_members()
+    {
+        return std::tie(vertices, normals, vertexRadius);
+    }
+
     /// @brief Gets the convex hull for the given set of vertices.
     static ConvexHull Get(const VertexSet& pointSet,
                           NonNegative<Length> vertexRadius = NonNegative<Length>{DefaultLinearSlop *
@@ -97,20 +102,21 @@ public:
 
 private:
     /// @brief Initializing constructor.
-    ConvexHull(std::vector<Length2> verts, std::vector<UnitVec> norms, NonNegative<Length> vr)
+    ConvexHull(cista::offset::vector<Length2> verts, cista::offset::vector<UnitVec> norms,
+               NonNegative<Length> vr)
         : vertices{std::move(verts)}, normals{std::move(norms)}, vertexRadius{vr}
     {
     }
 
     /// Array of vertices.
     /// @details Consecutive vertices constitute "edges" of the polygon.
-    std::vector<Length2> vertices;
+    cista::offset::vector<Length2> vertices;
 
     /// Normals of edges.
     /// @details
     /// These are 90-degree clockwise-rotated unit-vectors of the vectors defined by
     /// consecutive pairs of elements of vertices.
-    std::vector<UnitVec> normals;
+    cista::offset::vector<UnitVec> normals;
 
     /// @brief Vertex radius.
     ///

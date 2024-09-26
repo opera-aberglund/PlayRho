@@ -35,9 +35,9 @@ static_assert(detail::IsValidShapeTypeV<ChainShapeConf>);
 
 namespace {
 
-std::vector<UnitVec> ComputeNormals(const Span<const Length2>& vertices)
+cista::offset::vector<UnitVec> ComputeNormals(const Span<const Length2>& vertices)
 {
-    std::vector<UnitVec> normals;
+    cista::offset::vector<UnitVec> normals;
     if (size(vertices) > std::size_t{1}) {
         auto vprev = Length2{};
         auto first = true;
@@ -60,12 +60,12 @@ std::vector<UnitVec> ComputeNormals(const Span<const Length2>& vertices)
 
 } // anonymous namespace
 
-ChainShapeConf::VerticesWithNormals::VerticesWithNormals(std::vector<Length2> vertices)
+ChainShapeConf::VerticesWithNormals::VerticesWithNormals(cista::offset::vector<Length2> vertices)
     : m_vertices(std::move(vertices)), m_normals(ComputeNormals(m_vertices))
 {
 }
 
-ChainShapeConf& ChainShapeConf::Set(std::vector<Length2> vertices)
+ChainShapeConf& ChainShapeConf::Set(cista::offset::vector<Length2> vertices)
 {
     if (size(vertices) > MaxChildCount) {
         throw InvalidArgument("too many vertices");
@@ -153,7 +153,8 @@ DistanceProxy ChainShapeConf::GetChild(ChildCounter index) const
     }
     const auto vertexCount = GetVertexCount();
     if (vertexCount > 1) {
-        return DistanceProxy{vertexRadius, 2, &segments.GetVertices()[index], &segments.GetNormals()[index * 2]};
+        return DistanceProxy{vertexRadius, 2, &segments.GetVertices()[index],
+                             &segments.GetNormals()[index * 2]};
     }
     return DistanceProxy{vertexRadius, 1, &segments.GetVertices()[index], nullptr};
 }

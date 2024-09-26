@@ -109,6 +109,13 @@ public:
     /// @see World::CreateBody.
     explicit Body(const BodyConf& bd = GetDefaultBodyConf());
 
+    auto cista_members()
+    {
+        return std::tie(m_xf, m_sweep, m_flags, m_linearVelocity, m_linearAcceleration,
+                        m_angularVelocity, m_angularAcceleration, m_invMass, m_invRotI,
+                        m_linearDamping, m_angularDamping, m_underActiveTime, m_shapes);
+    }
+
     /// @brief Gets the body transform for the body's origin.
     /// @details This gets the translation/location and rotation/direction of the body
     ///   relative to its world. The location and direction of the body after stepping
@@ -407,13 +414,13 @@ public:
 
     /// @brief Gets the identifiers of the shapes attached to this body.
     /// @see SetShapes, Attach, Detach.
-    const std::vector<ShapeID>& GetShapes() const noexcept;
+    const cista::offset::vector<ShapeID>& GetShapes() const noexcept;
 
     /// @brief Sets the identifiers of the shapes attached to this body.
     /// @post <code>GetShapes()</code> returns the value given.
     /// @post <code>IsMassDataDirty()</code> returns true.
     /// @see GetShapes, Attach, Detach.
-    void SetShapes(std::vector<ShapeID> value);
+    void SetShapes(cista::offset::vector<ShapeID> value);
 
     /// @brief Adds the given shape identifier to the identifiers associated with this body.
     /// @param shapeId Identifier of the shape to attach.
@@ -521,7 +528,7 @@ private:
     Time m_underActiveTime = 0_s;
 
     /// @brief Identifiers of shapes attached/associated with this body.
-    std::vector<ShapeID> m_shapes;
+    cista::offset::vector<ShapeID> m_shapes;
 };
 
 // Assert some expected traits...
@@ -662,7 +669,8 @@ inline bool Body::IsSpeedable() const noexcept
 
 inline bool Body::IsAccelerable() const noexcept
 {
-    return (m_flags & e_accelerationFlag) != 0;
+    auto result = (m_flags & e_accelerationFlag);
+    return result != 0;
 }
 
 inline bool Body::IsSleepingAllowed() const noexcept
@@ -730,12 +738,12 @@ inline void Body::Advance0(ZeroToUnderOneFF<Real> value) noexcept
     assert(((m_flags & Body::e_velocityFlag) != 0) || m_sweep.pos1 == m_sweep.pos0);
 }
 
-inline const std::vector<ShapeID>& Body::GetShapes() const noexcept
+inline const cista::offset::vector<ShapeID>& Body::GetShapes() const noexcept
 {
     return m_shapes;
 }
 
-inline void Body::SetShapes(std::vector<ShapeID> value)
+inline void Body::SetShapes(cista::offset::vector<ShapeID> value)
 {
     m_shapes = std::move(value);
     m_flags |= e_massDataDirtyFlag;
@@ -1458,7 +1466,7 @@ void ApplyAngularImpulse(Body& body, AngularMomentum impulse) noexcept;
 
 /// @brief Gets the identifiers of the shapes attached to the body.
 /// @relatedalso Body
-inline const std::vector<ShapeID>& GetShapes(const Body& body) noexcept
+inline const cista::offset::vector<ShapeID>& GetShapes(const Body& body) noexcept
 {
     return body.GetShapes();
 }

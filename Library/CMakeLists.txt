@@ -126,7 +126,6 @@ set(PLAYRHO_General_HDRS
         include/playrho/TypeInfo.hpp
         include/playrho/UnitInterval.hpp
         include/playrho/Units.hpp
-        include/playrho/Vector.hpp
         include/playrho/Vector2.hpp
         include/playrho/Vector3.hpp
         include/playrho/Version.hpp
@@ -329,9 +328,6 @@ set(PLAYRHO_D2_SRCS
 set(PLAYRHO_D2_DETAIL_HDRS
         include/playrho/d2/detail/JointConcept.hpp
         include/playrho/d2/detail/JointModel.hpp
-        include/playrho/d2/detail/ShapeConcept.hpp
-        include/playrho/d2/detail/ShapeModel.hpp
-        include/playrho/d2/detail/WorldConcept.hpp
 )
 
 set(PLAYRHO_D2_PART_HDRS

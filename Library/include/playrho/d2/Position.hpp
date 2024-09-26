@@ -46,10 +46,14 @@ struct Position {
     constexpr Position() noexcept = default;
 
     /// @brief Initializing constructor.
-    constexpr explicit Position(Length2 l, Angle a = 0_deg) noexcept:
-          linear{l}, angular{a}
+    constexpr explicit Position(Length2 l, Angle a = 0_deg) noexcept : linear{l}, angular{a}
     {
         // Intentionally empty.
+    }
+
+    auto cista_members()
+    {
+        return std::tie(linear, angular);
     }
 
     Length2 linear{}; ///< Linear position.

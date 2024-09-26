@@ -33,6 +33,7 @@
 
 // IWYU pragma: begin_exports
 
+#include <cista.hpp>
 #include <playrho/InvalidArgument.hpp>
 #include <playrho/Real.hpp>
 #include <playrho/RealConstants.hpp>
@@ -462,6 +463,11 @@ public:
     constexpr UnitVec(value_type x, value_type y, Hidden) noexcept : m_elems{x, y}
     {
         // Intentionally empty.
+    }
+
+    auto cista_members()
+    {
+        return std::tie(m_elems);
     }
 
 private:

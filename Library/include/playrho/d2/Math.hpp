@@ -71,7 +71,8 @@ inline Angle GetAngle(const Transformation& value)
 
 /// @brief Multiplication operator.
 template <class T, typename U, bool NoExcept>
-constexpr Vector2<T> operator*(const playrho::detail::Checked<T, U, NoExcept>& s, const UnitVec& u) noexcept
+constexpr Vector2<T> operator*(const playrho::detail::Checked<T, U, NoExcept>& s,
+                               const UnitVec& u) noexcept
 {
     return Vector2<T>{u.GetX() * s, u.GetY() * s};
 }
@@ -85,7 +86,8 @@ constexpr Vector2<T> operator*(const T& s, const UnitVec& u) noexcept
 
 /// @brief Multiplication operator.
 template <class T, class U, bool NoExcept>
-constexpr Vector2<T> operator*(const UnitVec& u, const playrho::detail::Checked<T, U, NoExcept>& s) noexcept
+constexpr Vector2<T> operator*(const UnitVec& u,
+                               const playrho::detail::Checked<T, U, NoExcept>& s) noexcept
 {
     return Vector2<T>{u.GetX() * s, u.GetY() * s};
 }
@@ -248,7 +250,8 @@ inline Transformation GetTransformation(const Position& pos, const Length2& loca
 /// @param sweep Sweep data to get the transform from.
 /// @param beta Time factor in [0,1], where 0 indicates alpha 0.
 /// @return Transformation of the given sweep at the specified time.
-inline Transformation GetTransformation(const Sweep& sweep, const UnitIntervalFF<Real> beta) noexcept
+inline Transformation GetTransformation(const Sweep& sweep,
+                                        const UnitIntervalFF<Real> beta) noexcept
 {
     return GetTransformation(GetPosition(sweep.pos0, sweep.pos1, beta), sweep.localCenter);
 }
@@ -276,8 +279,8 @@ inline Transformation GetTransform1(const Sweep& sweep) noexcept
 /// @brief Gets the contact relative velocity.
 /// @note If <code>relA</code> and <code>relB</code> are the zero vectors, the resulting
 ///    value is simply <code>velB.linear - velA.linear</code>.
-LinearVelocity2 GetContactRelVelocity(const Velocity& velA, const Length2& relA, const Velocity& velB,
-                                      const Length2& relB) noexcept;
+LinearVelocity2 GetContactRelVelocity(const Velocity& velA, const Length2& relA,
+                                      const Velocity& velB, const Length2& relB) noexcept;
 
 /// @brief Gets whether the given velocity is "under active" based on the given tolerances.
 inline bool IsUnderActive(const Velocity& velocity, const LinearVelocity& linSleepTol,
@@ -313,7 +316,7 @@ constexpr auto GetReflectionMatrix(const UnitVec& axis)
 }
 
 /// @brief Gets the forward normals for the given container of vertices.
-std::vector<UnitVec> GetFwdNormalsVector(const std::vector<Length2>& vertices);
+cista::offset::vector<UnitVec> GetFwdNormalsVector(const cista::offset::vector<Length2>& vertices);
 
 } // namespace playrho::d2
 

@@ -72,6 +72,11 @@ struct DiskShapeConf : ShapeBuilder<DiskShapeConf> {
         // Intentionally empty.
     }
 
+    auto cista_members()
+    {
+        return std::tie(*static_cast<BaseShapeConf*>(this), vertexRadius, location);
+    }
+
     /// @brief Uses the given value as the location.
     constexpr DiskShapeConf& UseLocation(const Length2& value) noexcept
     {

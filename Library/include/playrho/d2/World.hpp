@@ -70,7 +70,6 @@
 
 // IWYU pragma: end_exports
 
-#include <playrho/d2/detail/WorldConcept.hpp>
 #include <playrho/d2/detail/WorldModel.hpp>
 
 #include "AabbTreeWorld.hpp"
@@ -398,7 +397,7 @@ cista::offset::vector<cista::offset::pair<ContactKey, ContactID>> GetContacts(co
 /// @brief Gets the identities of the shapes associated with the identified body.
 /// @throws std::out_of_range If given an out of range body identifier.
 /// @see GetBodyRange, CreateBody, SetBody.
-std::vector<ShapeID> GetShapes(const World& world, BodyID id);
+cista::offset::vector<ShapeID> GetShapes(const World& world, BodyID id);
 
 /// @brief Sets the accelerations of all the world's bodies.
 /// @param world World instance to set the acceleration of all contained bodies for.
@@ -826,7 +825,7 @@ public:
                                                                        BodyID id);
     friend cista::offset::vector<cista::offset::pair<ContactKey, ContactID>>
     GetContacts(const World& world, BodyID id);
-    friend std::vector<ShapeID> GetShapes(const World& world, BodyID id);
+    friend cista::offset::vector<ShapeID> GetShapes(const World& world, BodyID id);
 
     // Joint friend functions...
     friend JointCounter GetJointRange(const World& world) noexcept;
@@ -1018,7 +1017,7 @@ GetContacts(const World& world, BodyID id)
     return world.m_impl->GetContacts_(id);
 }
 
-inline std::vector<ShapeID> GetShapes(const World& world, BodyID id)
+inline cista::offset::vector<ShapeID> GetShapes(const World& world, BodyID id)
 {
     return world.m_impl->GetShapes_(id);
 }

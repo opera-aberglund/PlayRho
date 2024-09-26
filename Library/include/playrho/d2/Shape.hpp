@@ -45,7 +45,6 @@
 #include <playrho/d2/MassData.hpp>
 #include <playrho/d2/Math.hpp>
 
-#include <playrho/d2/detail/ShapeConcept.hpp>
 #include <playrho/d2/detail/ShapeModel.hpp>
 
 // IWYU pragma: end_exports
@@ -245,9 +244,15 @@ public:
     /// @throws std::bad_alloc if there's a failure allocating storage.
     template <typename T, typename Tp = DecayedTypeIfNotSame<T, Shape>,
               typename = std::enable_if_t<std::is_constructible_v<Tp, T>>>
-    explicit Shape(T&& arg) : m_impl{std::make_unique<detail::ShapeModel<Tp>>(std::forward<T>(arg))}
+    explicit Shape(T&& arg)
+        : m_impl{cista::offset::make_unique<detail::ShapeModel>(std::forward<T>(arg))}
     {
         // Intentionally empty.
+    }
+
+    auto cista_members()
+    {
+        return std::tie(m_impl);
     }
 
     /// @brief Copy assignment.
@@ -434,7 +439,7 @@ public:
 
     friend bool operator==(const Shape& lhs, const Shape& rhs) noexcept
     {
-        return (lhs.m_impl == rhs.m_impl) ||
+        return (lhs.m_impl.get() == rhs.m_impl.get()) ||
                ((lhs.m_impl && rhs.m_impl) && (lhs.m_impl->IsEqual_(*rhs.m_impl)));
     }
 
@@ -444,7 +449,7 @@ public:
     }
 
 private:
-    std::unique_ptr<const detail::ShapeConcept> m_impl; ///< Pointer to implementation.
+    cista::offset::unique_ptr<detail::ShapeModel> m_impl; ///< Pointer to implementation.
 };
 
 // Related non-member functions...
@@ -499,7 +504,7 @@ inline T TypeCast(const Shape& value)
 
 /// @brief Gets whether the given entity is in the is-destroyed state.
 /// @relatedalso Shape
-inline auto IsDestroyed(const Shape &value) noexcept -> bool
+inline auto IsDestroyed(const Shape& value) noexcept -> bool
 {
     return !value.has_value();
 }

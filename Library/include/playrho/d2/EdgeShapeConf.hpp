@@ -54,8 +54,7 @@ namespace playrho::d2 {
 ///   to other edge shapes. The connectivity information is used to ensure correct
 ///   contact normals.
 /// @ingroup PartsGroup
-struct EdgeShapeConf : public ShapeBuilder<EdgeShapeConf>
-{
+struct EdgeShapeConf : public ShapeBuilder<EdgeShapeConf> {
     /// @brief Default vertex radius.
     static constexpr auto DefaultVertexRadius = NonNegative<Length>{DefaultLinearSlop * Real{2}};
 
@@ -79,6 +78,11 @@ struct EdgeShapeConf : public ShapeBuilder<EdgeShapeConf>
     /// @brief Initializing constructor.
     EdgeShapeConf(const Length2& vA, const Length2& vB, // force line-break
                   const EdgeShapeConf& conf = GetDefaultConf()) noexcept;
+
+    auto cista_members()
+    {
+        return std::tie(*static_cast<BaseShapeConf*>(this), vertexRadius, ngon);
+    }
 
     /// @brief Sets both vertices in one call.
     EdgeShapeConf& Set(const Length2& vA, const Length2& vB) noexcept;
@@ -132,8 +136,7 @@ inline bool operator==(const EdgeShapeConf& lhs, const EdgeShapeConf& rhs) noexc
 {
     return lhs.vertexRadius == rhs.vertexRadius && lhs.friction == rhs.friction &&
            lhs.restitution == rhs.restitution && lhs.density == rhs.density &&
-           lhs.filter == rhs.filter && lhs.isSensor == rhs.isSensor &&
-           lhs.ngon == rhs.ngon;
+           lhs.filter == rhs.filter && lhs.isSensor == rhs.isSensor && lhs.ngon == rhs.ngon;
 }
 
 /// @brief Inequality operator.
@@ -155,7 +158,8 @@ inline DistanceProxy GetChild(const EdgeShapeConf& arg, ChildCounter index)
     if (index != 0) {
         throw InvalidArgument("only index of 0 is supported");
     }
-    return DistanceProxy{arg.vertexRadius, 2, // force line-break
+    return DistanceProxy{
+        arg.vertexRadius, 2, // force line-break
         data(arg.ngon.GetVertices()), // explicitly decay array into pointer
         data(arg.ngon.GetNormals()) // explicitly decay array into pointer
     };

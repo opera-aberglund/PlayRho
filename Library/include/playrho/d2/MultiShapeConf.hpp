@@ -63,14 +63,18 @@ struct MultiShapeConf : public ShapeBuilder<MultiShapeConf> {
         return MultiShapeConf{};
     }
 
+    auto cista_members()
+    {
+        return std::tie(*static_cast<BaseShapeConf*>(this), children);
+    }
+
     /// Creates a convex hull from the given set of local points.
     /// The size of the set must be in the range [1, <code>MaxShapeVertices</code>].
     /// @warning the points may be re-ordered, even if they form a convex polygon
     /// @warning collinear points are handled but not removed. Collinear points
     ///   may lead to poor stacking behavior.
-    MultiShapeConf&
-    AddConvexHull(const VertexSet& pointSet,
-                  NonNegative<Length> vertexRadius = GetDefaultVertexRadius());
+    MultiShapeConf& AddConvexHull(const VertexSet& pointSet,
+                                  NonNegative<Length> vertexRadius = GetDefaultVertexRadius());
 
     /// @brief Translates all the vertices by the given amount.
     MultiShapeConf& Translate(const Length2& value);
@@ -81,7 +85,7 @@ struct MultiShapeConf : public ShapeBuilder<MultiShapeConf> {
     /// @brief Rotates all the vertices by the given amount.
     MultiShapeConf& Rotate(const UnitVec& value);
 
-    std::vector<ConvexHull> children; ///< Children.
+    cista::offset::vector<ConvexHull> children; ///< Children.
 };
 
 // Free functions...

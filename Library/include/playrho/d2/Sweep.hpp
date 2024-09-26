@@ -40,8 +40,7 @@ namespace playrho::d2 {
 ///   Shapes are defined with respect to the body origin, which may
 ///   not coincide with the center of mass. However, to support dynamics
 ///   we must interpolate the center of mass position.
-struct Sweep
-{
+struct Sweep {
     /// @brief Default constructor.
     /// @post <code>pos0</code> is the value of <code>Position{}</code>.
     /// @post <code>pos1</code> is the value of <code>Position{}</code>.
@@ -73,6 +72,11 @@ struct Sweep
         : Sweep{p, p, lc, ZeroToUnderOneFF<Real>{}}
     {
         // Intentionally empty.
+    }
+
+    auto cista_members()
+    {
+        return std::tie(pos0, pos1, localCenter, alpha0);
     }
 
     /// @brief Center world position and world angle at time "0".

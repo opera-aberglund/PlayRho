@@ -62,8 +62,7 @@ namespace playrho::d2 {
 /// @image html convex_concave.gif
 /// @see Shape, ::playrho::d2::part::Compositor.
 /// @ingroup PartsGroup
-struct PolygonShapeConf : public ShapeBuilder<PolygonShapeConf>
-{
+struct PolygonShapeConf : public ShapeBuilder<PolygonShapeConf> {
     /// @brief Default vertex radius.
     static constexpr auto DefaultVertexRadius = NonNegative<Length>{DefaultLinearSlop * 2};
 
@@ -89,8 +88,7 @@ struct PolygonShapeConf : public ShapeBuilder<PolygonShapeConf>
     /// @param hy Half of the height.
     /// @param conf Additional configuration information.
     /// @see SetAsBox.
-    PolygonShapeConf(Length hx, Length hy,
-                     const PolygonShapeConf& conf = GetDefaultConf());
+    PolygonShapeConf(Length hx, Length hy, const PolygonShapeConf& conf = GetDefaultConf());
 
     /// @brief Creates a convex hull from the given array of local points.
     /// @note The size of the span must be in the range [1, <code>MaxShapeVertices</code>].
@@ -99,6 +97,11 @@ struct PolygonShapeConf : public ShapeBuilder<PolygonShapeConf>
     /// may lead to poor stacking behavior.
     explicit PolygonShapeConf(Span<const Length2> points,
                               const PolygonShapeConf& conf = GetDefaultConf());
+
+    auto cista_members()
+    {
+        return std::tie(vertexRadius, ngon);
+    }
 
     /// @brief Uses the given vertex radius.
     PolygonShapeConf& UseVertexRadius(NonNegative<Length> value) noexcept;
@@ -151,8 +154,7 @@ struct PolygonShapeConf : public ShapeBuilder<PolygonShapeConf>
         // Don't need to check normals nor centroid since they based on vertices.
         return lhs.vertexRadius == rhs.vertexRadius && lhs.friction == rhs.friction &&
                lhs.restitution == rhs.restitution && lhs.density == rhs.density &&
-               lhs.filter == rhs.filter && lhs.isSensor == rhs.isSensor &&
-               lhs.ngon == rhs.ngon;
+               lhs.filter == rhs.filter && lhs.isSensor == rhs.isSensor && lhs.ngon == rhs.ngon;
     }
 
     /// @brief Inequality operator.

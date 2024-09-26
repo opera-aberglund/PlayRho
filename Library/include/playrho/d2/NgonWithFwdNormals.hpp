@@ -45,7 +45,8 @@ GetFwdNormalsArray(const std::array<Length2, sizeof...(ints)>& vertices,
                    std::integer_sequence<T, ints...> int_seq)
 {
     constexpr auto count = int_seq.size();
-    return {GetUnitVector(GetFwdPerpendicular(vertices[GetModuloNext(ints, count)] - vertices[ints]))...};
+    return {GetUnitVector(
+        GetFwdPerpendicular(vertices[GetModuloNext(ints, count)] - vertices[ints]))...};
 }
 
 /// @brief Gets forward normals for the given vertices.
@@ -58,9 +59,10 @@ std::array<UnitVec, N> GetFwdNormalsArray(const std::array<Length2, N>& vertices
 /// @brief N-gon of vertices with counter-clockwise "forward" normals.
 /// @invariant The normals provided are always the forward normals of the assigned vertices.
 template <std::size_t N = static_cast<std::size_t>(-1)>
-class NgonWithFwdNormals {
-    std::array<Length2, N> m_vertices{}; ///< Vertices
-    std::array<UnitVec, N> m_normals{}; ///< Normals.
+class NgonWithFwdNormals
+{
+    cista::offset::array<Length2, N> m_vertices{}; ///< Vertices
+    cista::offset::array<UnitVec, N> m_normals{}; ///< Normals.
 public:
     /// @brief Default constructor.
     constexpr NgonWithFwdNormals() noexcept = default;
@@ -70,6 +72,11 @@ public:
         : m_vertices{vertices}, m_normals{GetFwdNormalsArray(vertices)}
     {
         // Intentionally empty.
+    }
+
+    auto cista_members()
+    {
+        return std::tie(m_vertices, m_normals);
     }
 
     /// @brief Gets the vertices of this N-gon.
@@ -85,33 +92,40 @@ public:
     }
 
     /// @brief Operator equals support.
-    friend constexpr auto operator==(const NgonWithFwdNormals& lhs, const NgonWithFwdNormals& rhs) noexcept -> bool
+    friend constexpr auto operator==(const NgonWithFwdNormals& lhs,
+                                     const NgonWithFwdNormals& rhs) noexcept -> bool
     {
         return lhs.m_vertices == rhs.m_vertices;
     }
 };
 
 // Confirms/recognizes return type of NgonWithFwdNormals<1>::GetNormals()...
-static_assert(std::is_same_v<
-              decltype(std::declval<NgonWithFwdNormals<1>>().GetNormals()),
-              const std::array<UnitVec, 1>&>);
+static_assert(std::is_same_v<decltype(std::declval<NgonWithFwdNormals<1>>().GetNormals()),
+                             const std::array<UnitVec, 1>&>);
 
 /// @brief N-gon of runtime-arbitray vertices with counter-clockwise "forward" normals.
-/// @details Specialization of <code>NgonWithFwdNormals</code> for runtime-arbitrary count of vertices.
+/// @details Specialization of <code>NgonWithFwdNormals</code> for runtime-arbitrary count of
+/// vertices.
 /// @invariant The normals provided are always the forward normals of the assigned vertices.
 template <>
-class NgonWithFwdNormals<static_cast<std::size_t>(-1)> {
-    std::vector<Length2> m_vertices{}; ///< Vertices
-    std::vector<UnitVec> m_normals{}; ///< Normals.
+class NgonWithFwdNormals<static_cast<std::size_t>(-1)>
+{
+    cista::offset::vector<Length2> m_vertices{}; ///< Vertices
+    cista::offset::vector<UnitVec> m_normals{}; ///< Normals.
 public:
     /// @brief Default constructor.
     NgonWithFwdNormals() noexcept = default;
 
     /// @brief Initializing constructor.
-    NgonWithFwdNormals(std::vector<Length2> vertices)
+    NgonWithFwdNormals(cista::offset::vector<Length2> vertices)
         : m_vertices{std::move(vertices)}, m_normals{GetFwdNormalsVector(m_vertices)}
     {
         // Intentionally empty.
+    }
+
+    auto cista_members()
+    {
+        return std::tie(m_vertices, m_normals);
     }
 
     /// @brief Gets the vertices of this N-gon.
@@ -127,16 +141,16 @@ public:
     }
 
     /// @brief Operator equals support.
-    friend auto operator==(const NgonWithFwdNormals& lhs, const NgonWithFwdNormals& rhs) noexcept -> bool
+    friend auto operator==(const NgonWithFwdNormals& lhs, const NgonWithFwdNormals& rhs) noexcept
+        -> bool
     {
         return lhs.m_vertices == rhs.m_vertices;
     }
 };
 
 // Confirms/recognizes return type of NgonWithFwdNormals<>::GetNormals()...
-static_assert(std::is_same_v<
-              decltype(std::declval<NgonWithFwdNormals<>>().GetNormals()),
-              const std::vector<UnitVec>&>);
+static_assert(std::is_same_v<decltype(std::declval<NgonWithFwdNormals<>>().GetNormals()),
+                             const cista::offset::vector<UnitVec>&>);
 
 } // namespace playrho::d2
 

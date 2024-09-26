@@ -35,6 +35,7 @@
 
 // IWYU pragma: begin_exports
 
+#include <cista.hpp>
 #include <playrho/InvalidArgument.hpp>
 #include <playrho/Real.hpp>
 #include <playrho/Templates.hpp>
@@ -53,93 +54,130 @@ namespace playrho {
 ///   performs no actions (no initialization).
 /// @see IsArithmetic, VectorTraitsGroup
 template <typename T, std::size_t N>
-struct Vector
-{
+struct Vector {
     /// @brief Value type.
     using value_type = T;
 
     /// @brief Size type.
     using size_type = std::size_t;
-    
+
     /// @brief Difference type.
     using difference_type = std::ptrdiff_t;
-    
+
     /// @brief Reference type.
     using reference = value_type&;
-    
+
     /// @brief Constant reference type.
     using const_reference = const value_type&;
-    
+
     /// @brief Pointer type.
     using pointer = value_type*;
-    
+
     /// @brief Constant pointer type.
     using const_pointer = const value_type*;
-    
+
     /// @brief Iterator type.
     using iterator = value_type*;
-    
+
     /// @brief Constant iterator type.
     using const_iterator = const value_type*;
-    
+
     /// @brief Reverse iterator type.
     using reverse_iterator = std::reverse_iterator<iterator>;
-    
+
     /// @brief Constant reverse iterator type.
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
-    
+
     /// @brief Default constructor.
     /// @note This constructor performs no action.
     constexpr Vector() = default;
-    
+
     /// @brief Initializing constructor.
-    template<typename... Tail>
-    constexpr Vector(std::enable_if_t<sizeof...(Tail)+1 == N, T> head,
-                                    Tail... tail) noexcept: elements{head, T(tail)...}
+    template <typename... Tail>
+    constexpr Vector(std::enable_if_t<sizeof...(Tail) + 1 == N, T> head, Tail... tail) noexcept
+        : elements{head, T(tail)...}
     {
         // Intentionally empty.
     }
 
+    auto cista_members()
+    {
+        return std::tie(elements);
+    }
+
     /// @brief Gets the max size.
-    static constexpr size_type max_size() noexcept { return N; }
-    
+    static constexpr size_type max_size() noexcept
+    {
+        return N;
+    }
+
     /// @brief Gets the size.
-    static constexpr size_type size() noexcept { return N; }
-    
+    static constexpr size_type size() noexcept
+    {
+        return N;
+    }
+
     /// @brief Whether empty.
     /// @note Always false for N > 0.
-    static constexpr bool empty() noexcept { return N == 0; }
-    
+    static constexpr bool empty() noexcept
+    {
+        return N == 0;
+    }
+
     /// @brief Gets a "begin" iterator.
-    iterator begin() noexcept { return iterator(data()); }
+    iterator begin() noexcept
+    {
+        return iterator(data());
+    }
 
     /// @brief Gets an "end" iterator.
-    iterator end() noexcept { return iterator(data() + N); }
-    
+    iterator end() noexcept
+    {
+        return iterator(data() + N);
+    }
+
     /// @brief Gets a "begin" iterator.
-    const_iterator begin() const noexcept { return const_iterator(data()); }
-    
+    const_iterator begin() const noexcept
+    {
+        return const_iterator(data());
+    }
+
     /// @brief Gets an "end" iterator.
-    const_iterator end() const noexcept { return const_iterator(data() + N); }
-    
+    const_iterator end() const noexcept
+    {
+        return const_iterator(data() + N);
+    }
+
     /// @brief Gets a "begin" iterator.
-    const_iterator cbegin() const noexcept { return begin(); }
-    
+    const_iterator cbegin() const noexcept
+    {
+        return begin();
+    }
+
     /// @brief Gets an "end" iterator.
-    const_iterator cend() const noexcept { return end(); }
+    const_iterator cend() const noexcept
+    {
+        return end();
+    }
 
     /// @brief Gets a reverse "begin" iterator.
-    reverse_iterator rbegin() noexcept { return reverse_iterator{data() + N}; }
+    reverse_iterator rbegin() noexcept
+    {
+        return reverse_iterator{data() + N};
+    }
 
     /// @brief Gets a reverse "end" iterator.
-    reverse_iterator rend() noexcept { return reverse_iterator{data()}; }
-    
+    reverse_iterator rend() noexcept
+    {
+        return reverse_iterator{data()};
+    }
+
     /// @brief Gets a reverse "begin" iterator.
     const_reverse_iterator crbegin() const noexcept
     {
         return const_reverse_iterator{data() + N};
     }
-    
+
     /// @brief Gets a reverse "end" iterator.
     const_reverse_iterator crend() const noexcept
     {
@@ -151,7 +189,7 @@ struct Vector
     {
         return crbegin();
     }
-    
+
     /// @brief Gets a reverse "end" iterator.
     const_reverse_iterator rend() const noexcept
     {
@@ -167,7 +205,7 @@ struct Vector
         assert(pos < size());
         return elements[pos]; // NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
     }
-    
+
     /// @brief Gets a constant reference to the requested element.
     /// @note No bounds checking is performed.
     /// @param pos Indexing position into the vector to return reference for.
@@ -177,49 +215,50 @@ struct Vector
         assert(pos < size());
         return elements[pos]; // NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
     }
-    
+
     /// @brief Gets a reference to the requested element.
-    /// @throws InvalidArgument if given a position that's greater-than or equal-to <code>size()</code>.
+    /// @throws InvalidArgument if given a position that's greater-than or equal-to
+    /// <code>size()</code>.
     constexpr reference at(size_type pos)
     {
-        if (pos >= size())
-        {
+        if (pos >= size()) {
             throw InvalidArgument("Vector::at: position >= size()");
         }
         return elements[pos];
     }
-    
+
     /// @brief Gets a constant reference to the requested element.
-    /// @throws InvalidArgument if given a position that's greater-than or equal-to <code>size()</code>.
+    /// @throws InvalidArgument if given a position that's greater-than or equal-to
+    /// <code>size()</code>.
     constexpr const_reference at(size_type pos) const
     {
-        if (pos >= size())
-        {
+        if (pos >= size()) {
             throw InvalidArgument("Vector::at: position >= size()");
         }
         return elements[pos];
     }
-    
+
     /// @brief Direct access to data.
     constexpr pointer data() noexcept
     {
         // Cast to be more explicit about wanting to decay array into pointer...
         return static_cast<pointer>(elements);
     }
-    
+
     /// @brief Direct access to data.
     constexpr const_pointer data() const noexcept
     {
         // Cast to be more explicit about wanting to decay array into pointer...
-        return static_cast<const_pointer>(elements);
+        return elements.data();
     }
-    
+
     /// @brief Elements.
     /// @details Array of N elements unless N is 0 in which case this is an array of 1 element.
     /// @warning Don't access this directly!
     /// @warning Data is not initialized on default construction. This is intentional
     ///   to avoid any performance overhead that default initialization might incur.
-    value_type elements[N? N: 1]; // Never zero to avoid needing C++ extension capability.
+    cista::offset::array<value_type, N ? N : 1>
+        elements; // Never zero to avoid needing C++ extension capability.
 };
 
 namespace detail {
@@ -237,7 +276,8 @@ namespace detail {
 /// @endcode
 /// @see Vector
 template <typename T>
-struct IsVector: std::false_type {};
+struct IsVector : std::false_type {
+};
 
 /// @brief Trait class specialization for checking if type is a <code>Vector</code> type..
 /// @note This implements the specialized case where the given type *is indeed* a
@@ -248,7 +288,8 @@ struct IsVector: std::false_type {};
 /// @endcode
 /// @see Vector
 template <typename T, std::size_t N>
-struct IsVector<Vector<T, N>>: std::true_type {};
+struct IsVector<Vector<T, N>> : std::true_type {
+};
 
 /// @}
 
@@ -261,12 +302,10 @@ inline constexpr bool IsVectorV = detail::IsVector<T>::value;
 /// @brief Equality operator.
 /// @relatedalso Vector
 template <typename T, std::size_t N>
-constexpr bool operator== (const Vector<T, N>& lhs, const Vector<T, N>& rhs) noexcept
+constexpr bool operator==(const Vector<T, N>& lhs, const Vector<T, N>& rhs) noexcept
 {
-    for (auto i = decltype(N){0}; i < N; ++i)
-    {
-        if (lhs[i] != rhs[i])
-        {
+    for (auto i = decltype(N){0}; i < N; ++i) {
+        if (lhs[i] != rhs[i]) {
             return false;
         }
     }
@@ -276,7 +315,7 @@ constexpr bool operator== (const Vector<T, N>& lhs, const Vector<T, N>& rhs) noe
 /// @brief Inequality operator.
 /// @relatedalso Vector
 template <typename T, std::size_t N>
-constexpr bool operator!= (const Vector<T, N>& lhs, const Vector<T, N>& rhs) noexcept
+constexpr bool operator!=(const Vector<T, N>& lhs, const Vector<T, N>& rhs) noexcept
 {
     return !(lhs == rhs);
 }
@@ -285,7 +324,7 @@ constexpr bool operator!= (const Vector<T, N>& lhs, const Vector<T, N>& rhs) noe
 /// @relatedalso Vector
 template <typename T, std::size_t N>
 constexpr std::enable_if_t<std::is_same_v<T, decltype(+T{})>, Vector<T, N>>
-operator+ (Vector<T, N> v) noexcept
+operator+(Vector<T, N> v) noexcept
 {
     return v;
 }
@@ -294,10 +333,9 @@ operator+ (Vector<T, N> v) noexcept
 /// @relatedalso Vector
 template <typename T, std::size_t N>
 constexpr std::enable_if_t<std::is_same_v<T, decltype(-T{})>, Vector<T, N>>
-operator- (Vector<T, N> v) noexcept
+operator-(Vector<T, N> v) noexcept
 {
-    for (auto i = decltype(N){0}; i < N; ++i)
-    {
+    for (auto i = decltype(N){0}; i < N; ++i) {
         v[i] = -v[i];
     }
     return v;
@@ -307,10 +345,9 @@ operator- (Vector<T, N> v) noexcept
 /// @relatedalso Vector
 template <typename T, std::size_t N>
 constexpr std::enable_if_t<std::is_same_v<T, decltype(T{} + T{})>, Vector<T, N>&>
-operator+= (Vector<T, N>& lhs, const Vector<T, N> rhs) noexcept
+operator+=(Vector<T, N>& lhs, const Vector<T, N> rhs) noexcept
 {
-    for (auto i = decltype(N){0}; i < N; ++i)
-    {
+    for (auto i = decltype(N){0}; i < N; ++i) {
         lhs[i] += rhs[i];
     }
     return lhs;
@@ -320,10 +357,9 @@ operator+= (Vector<T, N>& lhs, const Vector<T, N> rhs) noexcept
 /// @relatedalso Vector
 template <typename T, std::size_t N>
 constexpr std::enable_if_t<std::is_same_v<T, decltype(T{} - T{})>, Vector<T, N>&>
-operator-= (Vector<T, N>& lhs, const Vector<T, N> rhs) noexcept
+operator-=(Vector<T, N>& lhs, const Vector<T, N> rhs) noexcept
 {
-    for (auto i = decltype(N){0}; i < N; ++i)
-    {
+    for (auto i = decltype(N){0}; i < N; ++i) {
         lhs[i] -= rhs[i];
     }
     return lhs;
@@ -333,7 +369,7 @@ operator-= (Vector<T, N>& lhs, const Vector<T, N> rhs) noexcept
 /// @relatedalso Vector
 template <typename T, std::size_t N>
 constexpr std::enable_if_t<std::is_same_v<T, decltype(T{} + T{})>, Vector<T, N>>
-operator+ (Vector<T, N> lhs, const Vector<T, N> rhs) noexcept
+operator+(Vector<T, N> lhs, const Vector<T, N> rhs) noexcept
 {
     return lhs += rhs;
 }
@@ -342,7 +378,7 @@ operator+ (Vector<T, N> lhs, const Vector<T, N> rhs) noexcept
 /// @relatedalso Vector
 template <typename T, std::size_t N>
 constexpr std::enable_if_t<std::is_same_v<T, decltype(T{} - T{})>, Vector<T, N>>
-operator- (Vector<T, N> lhs, const Vector<T, N> rhs) noexcept
+operator-(Vector<T, N> lhs, const Vector<T, N> rhs) noexcept
 {
     return lhs -= rhs;
 }
@@ -351,10 +387,9 @@ operator- (Vector<T, N> lhs, const Vector<T, N> rhs) noexcept
 /// @relatedalso Vector
 template <typename T1, typename T2, std::size_t N>
 constexpr std::enable_if_t<std::is_same_v<T1, decltype(T1{} * T2{})>, Vector<T1, N>&>
-operator*= (Vector<T1, N>& lhs, const T2 rhs) noexcept
+operator*=(Vector<T1, N>& lhs, const T2 rhs) noexcept
 {
-    for (auto i = decltype(N){0}; i < N; ++i)
-    {
+    for (auto i = decltype(N){0}; i < N; ++i) {
         lhs[i] *= rhs;
     }
     return lhs;
@@ -364,11 +399,10 @@ operator*= (Vector<T1, N>& lhs, const T2 rhs) noexcept
 /// @relatedalso Vector
 template <typename T1, typename T2, std::size_t N>
 constexpr std::enable_if_t<std::is_same_v<T1, decltype(T1{} / T2{})>, Vector<T1, N>&>
-operator/= (Vector<T1, N>& lhs, const T2 rhs) noexcept
+operator/=(Vector<T1, N>& lhs, const T2 rhs) noexcept
 {
     const auto inverseRhs = Real{1} / rhs;
-    for (auto i = decltype(N){0}; i < N; ++i)
-    {
+    for (auto i = decltype(N){0}; i < N; ++i) {
         lhs[i] *= inverseRhs;
     }
     return lhs;
@@ -393,16 +427,14 @@ operator/= (Vector<T1, N>& lhs, const T2 rhs) noexcept
 /// @see https://en.wikipedia.org/wiki/Commutative_property
 /// @relatedalso Vector
 template <typename T1, typename T2, std::size_t A, std::size_t B, std::size_t C,
-    typename OT = decltype(T1{} * T2{})>
+          typename OT = decltype(T1{} * T2{})>
 constexpr std::enable_if_t<IsMultipliableV<T1, T2>, Vector<Vector<OT, C>, A>>
-operator* (const Vector<Vector<T1, B>, A>& lhs, const Vector<Vector<T2, C>, B>& rhs) noexcept
+operator*(const Vector<Vector<T1, B>, A>& lhs, const Vector<Vector<T2, C>, B>& rhs) noexcept
 {
-    //using OT = decltype(T1{} * T2{});
+    // using OT = decltype(T1{} * T2{});
     auto result = Vector<Vector<OT, C>, A>{};
-    for (auto a = decltype(A){0}; a < A; ++a)
-    {
-        for (auto c = decltype(C){0}; c < C; ++c)
-        {
+    for (auto a = decltype(A){0}; a < A; ++a) {
+        for (auto c = decltype(C){0}; c < C; ++c) {
             // So for 2x3 lhs matrix * 3*2 rhs matrix... result is 2x2 matrix:
             // result[0][0] = lhs[0][0] * rhs[0][0] + lhs[0][1] * rhs[1][0] + lhs[0][2] * rhs[2][0]
             // result[0][1] = lhs[0][0] * rhs[0][1] + lhs[0][1] * rhs[1][1] + lhs[0][2] * rhs[2][1]
@@ -410,8 +442,7 @@ operator* (const Vector<Vector<T1, B>, A>& lhs, const Vector<Vector<T2, C>, B>& 
             // result[1][1] = lhs[1][0] * rhs[0][1] + lhs[1][1] * rhs[1][1] + lhs[1][2] * rhs[2][1]
             // This is also: result[a][c] = row(lhs, a) * col(rhs, c)
             auto element = OT{};
-            for (auto b = decltype(B){0}; b < B; ++b)
-            {
+            for (auto b = decltype(B){0}; b < B; ++b) {
                 element += lhs[a][b] * rhs[b][c];
             }
             result[a][c] = element;
@@ -428,16 +459,14 @@ operator* (const Vector<Vector<T1, B>, A>& lhs, const Vector<Vector<T2, C>, B>& 
 /// @param rhs Right-hand-side vector of vectors.
 /// @return B-element vector product.
 template <typename T1, typename T2, std::size_t A, std::size_t B,
-    typename OT = decltype(T1{} * T2{})>
+          typename OT = decltype(T1{} * T2{})>
 constexpr std::enable_if_t<IsMultipliableV<T1, T2> && !IsVectorV<T1>, Vector<OT, B>>
-operator* (const Vector<T1, A>& lhs, const Vector<Vector<T2, B>, A>& rhs) noexcept
+operator*(const Vector<T1, A>& lhs, const Vector<Vector<T2, B>, A>& rhs) noexcept
 {
     auto result = Vector<OT, B>{};
-    for (auto b = decltype(B){0}; b < B; ++b)
-    {
+    for (auto b = decltype(B){0}; b < B; ++b) {
         auto element = OT{};
-        for (auto a = decltype(A){0}; a < A; ++a)
-        {
+        for (auto a = decltype(A){0}; a < A; ++a) {
             element += lhs[a] * rhs[a][b];
         }
         result[b] = element;
@@ -453,16 +482,14 @@ operator* (const Vector<T1, A>& lhs, const Vector<Vector<T2, B>, A>& rhs) noexce
 ///   <code>Vector<Vector<T2, 1>, A></code>.
 /// @return B-element vector product.
 template <typename T1, typename T2, std::size_t A, std::size_t B,
-    typename OT = decltype(T1{} * T2{})>
+          typename OT = decltype(T1{} * T2{})>
 constexpr std::enable_if_t<IsMultipliableV<T1, T2> && !IsVectorV<T2>, Vector<OT, B>>
-operator* (const Vector<Vector<T1, A>, B>& lhs, const Vector<T2, A>& rhs) noexcept
+operator*(const Vector<Vector<T1, A>, B>& lhs, const Vector<T2, A>& rhs) noexcept
 {
     auto result = Vector<OT, B>{};
-    for (auto b = decltype(B){0}; b < B; ++b)
-    {
+    for (auto b = decltype(B){0}; b < B; ++b) {
         auto element = OT{};
-        for (auto a = decltype(A){0}; a < A; ++a)
-        {
+        for (auto a = decltype(A){0}; a < A; ++a) {
             element += lhs[b][a] * rhs[a];
         }
         result[b] = element;
@@ -476,12 +503,11 @@ operator* (const Vector<Vector<T1, A>, B>& lhs, const Vector<T2, A>& rhs) noexce
 ///   in that case and prevent errors like "use of overloaded operator '*' is ambiguous".
 template <std::size_t N, typename T1, typename T2, typename OT = decltype(T1{} * T2{})>
 constexpr std::enable_if_t<IsMultipliableV<T1, T2> && !IsVectorV<T1>, Vector<OT, N>>
-operator* (const T1& s, const Vector<T2, N>& a) noexcept
+operator*(const T1& s, const Vector<T2, N>& a) noexcept
 {
     // Can't base this off of *= since result type in this case can be different
     auto result = Vector<OT, N>{};
-    for (auto i = decltype(N){0}; i < N; ++i)
-    {
+    for (auto i = decltype(N){0}; i < N; ++i) {
         result[i] = s * a[i];
     }
     return result;
@@ -493,12 +519,11 @@ operator* (const T1& s, const Vector<T2, N>& a) noexcept
 ///   in that case and prevent errors like "use of overloaded operator '*' is ambiguous".
 template <std::size_t N, typename T1, typename T2, typename OT = decltype(T1{} * T2{})>
 constexpr std::enable_if_t<IsMultipliableV<T1, T2> && !IsVectorV<T2>, Vector<OT, N>>
-operator* (const Vector<T1, N>& a, const T2& s) noexcept
+operator*(const Vector<T1, N>& a, const T2& s) noexcept
 {
     // Can't base this off of *= since result type in this case can be different
     auto result = Vector<OT, N>{};
-    for (auto i = decltype(N){0}; i < N; ++i)
-    {
+    for (auto i = decltype(N){0}; i < N; ++i) {
         result[i] = a[i] * s;
     }
     return result;
@@ -508,13 +533,12 @@ operator* (const Vector<T1, N>& a, const T2& s) noexcept
 /// @relatedalso Vector
 template <std::size_t N, typename T1, typename T2, typename OT = decltype(T1{} / T2{})>
 constexpr std::enable_if_t<IsDivisableV<T1, T2> && !IsVectorV<T2>, Vector<OT, N>>
-operator/ (const Vector<T1, N>& a, const T2& s) noexcept
+operator/(const Vector<T1, N>& a, const T2& s) noexcept
 {
     // Can't base this off of /= since result type in this case can be different
     auto result = Vector<OT, N>{};
     const auto inverseS = Real{1} / s;
-    for (auto i = decltype(N){0}; i < N; ++i)
-    {
+    for (auto i = decltype(N){0}; i < N; ++i) {
         result[i] = a[i] * inverseS;
     }
     return result;
@@ -524,7 +548,7 @@ operator/ (const Vector<T1, N>& a, const T2& s) noexcept
 /// @note Among other things, this also makes the Vector class usable with <code>std::set</code>.
 /// @relatedalso Vector
 template <std::size_t N0, class T0, std::size_t N1, class T1>
-constexpr bool operator< (const Vector<T0, N0>& lhs, const Vector<T1, N1>& rhs) noexcept
+constexpr bool operator<(const Vector<T0, N0>& lhs, const Vector<T1, N1>& rhs) noexcept
 {
     return std::lexicographical_compare(begin(lhs), end(lhs), begin(rhs), end(rhs));
 }
@@ -549,13 +573,11 @@ constexpr auto get(const Vector<T, N>& v) noexcept
 /// @brief Output stream operator.
 /// @relatedalso Vector
 template <typename T, std::size_t N>
-::std::ostream& operator<< (::std::ostream& os, const Vector<T, N>& value)
+::std::ostream& operator<<(::std::ostream& os, const Vector<T, N>& value)
 {
     os << "{";
-    for (auto i = decltype(N){0}; i < N; ++i)
-    {
-        if (i > decltype(N){0})
-        {
+    for (auto i = decltype(N){0}; i < N; ++i) {
+        if (i > decltype(N){0}) {
             os << ',';
         }
         os << value[i];
@@ -621,11 +643,13 @@ constexpr auto GetZ(const Vector<T, N>& value) -> decltype(get<2>(value))
 } // namespace playrho
 
 /// @brief Tuple size info for <code>playrho::Vector</code>
-template<class T, std::size_t N>
-class std::tuple_size< playrho::Vector<T, N> >: public std::integral_constant<std::size_t, N> {};
+template <class T, std::size_t N>
+class std::tuple_size<playrho::Vector<T, N>> : public std::integral_constant<std::size_t, N>
+{
+};
 
 /// @brief Tuple element type info for <code>playrho::Vector</code>
-template<std::size_t I, class T, std::size_t N>
+template <std::size_t I, class T, std::size_t N>
 class std::tuple_element<I, playrho::Vector<T, N>>
 {
 public:
