@@ -79,6 +79,14 @@ struct PrismaticJointConf : public JointBuilder<PrismaticJointConf> {
                        const Length2& laA = Length2{}, const Length2& laB = Length2{},
                        const UnitVec& axisA = UnitVec::GetRight(), Angle angle = 0_deg) noexcept;
 
+    auto cista_members()
+    {
+        return std::tie(*static_cast<JointConf*>(this), localAnchorA, localAnchorB, localXAxisA,
+                        localYAxisA, referenceAngle, impulse, motorImpulse, enableLimit,
+                        lowerTranslation, upperTranslation, enableMotor, maxMotorForce, motorSpeed,
+                        limitState, axis, perp, s1, s2, a1, a2, K, motorMass);
+    }
+
     /// @brief Uses the given enable limit state value.
     constexpr auto& UseEnableLimit(bool v) noexcept
     {
@@ -263,13 +271,17 @@ AngularMomentum GetAngularReaction(const PrismaticJointConf& conf);
 
 /// @brief Initializes velocity constraint data based on the given solver data.
 /// @note This MUST be called prior to calling <code>SolveVelocity</code>.
-/// @param object Configuration object. <code>bodyA</code> and <code>bodyB</code> must index bodies within
-///   the given <code>bodies</code> container or be the special body ID value of <code>InvalidBodyID</code>.
+/// @param object Configuration object. <code>bodyA</code> and <code>bodyB</code> must index bodies
+/// within
+///   the given <code>bodies</code> container or be the special body ID value of
+///   <code>InvalidBodyID</code>.
 /// @param bodies Container of body constraints.
 /// @param step Configuration for the step.
 /// @param conf Constraint solver configuration.
-/// @throws std::out_of_range If the given object's <code>bodyA</code> or <code>bodyB</code> values are not
-///  <code>InvalidBodyID</code> and are not  indices within range of the given <code>bodies</code> container.
+/// @throws std::out_of_range If the given object's <code>bodyA</code> or <code>bodyB</code> values
+/// are not
+///  <code>InvalidBodyID</code> and are not  indices within range of the given <code>bodies</code>
+///  container.
 /// @see SolveVelocityConstraints.
 /// @relatedalso PrismaticJointConf
 void InitVelocity(PrismaticJointConf& object, const Span<BodyConstraint>& bodies,
@@ -277,12 +289,16 @@ void InitVelocity(PrismaticJointConf& object, const Span<BodyConstraint>& bodies
 
 /// @brief Solves velocity constraint.
 /// @pre <code>InitVelocity</code> has been called.
-/// @param object Configuration object. <code>bodyA</code> and <code>bodyB</code> must index bodies within
-///   the given <code>bodies</code> container or be the special body ID value of <code>InvalidBodyID</code>.
+/// @param object Configuration object. <code>bodyA</code> and <code>bodyB</code> must index bodies
+/// within
+///   the given <code>bodies</code> container or be the special body ID value of
+///   <code>InvalidBodyID</code>.
 /// @param bodies Container of body constraints.
 /// @param step Configuration for the step.
-/// @throws std::out_of_range If the given object's <code>bodyA</code> or <code>bodyB</code> values are not
-///  <code>InvalidBodyID</code> and are not  indices within range of the given <code>bodies</code> container.
+/// @throws std::out_of_range If the given object's <code>bodyA</code> or <code>bodyB</code> values
+/// are not
+///  <code>InvalidBodyID</code> and are not  indices within range of the given <code>bodies</code>
+///  container.
 /// @see InitVelocity.
 /// @return <code>true</code> if velocity is "solved", <code>false</code> otherwise.
 /// @relatedalso PrismaticJointConf
@@ -290,12 +306,16 @@ bool SolveVelocity(PrismaticJointConf& object, const Span<BodyConstraint>& bodie
                    const StepConf& step);
 
 /// @brief Solves the position constraint.
-/// @param object Configuration object. <code>bodyA</code> and <code>bodyB</code> must index bodies within
-///   the given <code>bodies</code> container or be the special body ID value of <code>InvalidBodyID</code>.
+/// @param object Configuration object. <code>bodyA</code> and <code>bodyB</code> must index bodies
+/// within
+///   the given <code>bodies</code> container or be the special body ID value of
+///   <code>InvalidBodyID</code>.
 /// @param bodies Container of body constraints.
 /// @param conf Constraint solver configuration.
-/// @throws std::out_of_range If the given object's <code>bodyA</code> or <code>bodyB</code> values are not
-///  <code>InvalidBodyID</code> and are not  indices within range of the given <code>bodies</code> container.
+/// @throws std::out_of_range If the given object's <code>bodyA</code> or <code>bodyB</code> values
+/// are not
+///  <code>InvalidBodyID</code> and are not  indices within range of the given <code>bodies</code>
+///  container.
 /// @return <code>true</code> if the position errors are within tolerance.
 /// @relatedalso PrismaticJointConf
 bool SolvePosition(const PrismaticJointConf& object, const Span<BodyConstraint>& bodies,

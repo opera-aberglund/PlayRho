@@ -24,6 +24,19 @@
 /// @file
 /// @brief Definition of the internal @c JointModel class.
 
+#include "playrho/d2/DistanceJointConf.hpp"
+#include "playrho/d2/FrictionJointConf.hpp"
+#include "playrho/d2/GearJointConf.hpp"
+#include "playrho/d2/MotorJointConf.hpp"
+#include "playrho/d2/PrismaticJointConf.hpp"
+#include "playrho/d2/PulleyJointConf.hpp"
+#include "playrho/d2/RevoluteJointConf.hpp"
+#include "playrho/d2/RopeJointConf.hpp"
+#include "playrho/d2/TargetJointConf.hpp"
+#include "playrho/d2/WeldJointConf.hpp"
+#include "playrho/d2/WheelJointConf.hpp"
+
+
 #include <utility> // for std::move, std::forward
 #include <type_traits> // for std::is_nothrow_constructible_v
 
@@ -33,23 +46,34 @@ namespace playrho::d2::detail {
 
 /// @brief Internal joint model type.
 /// @note Provides the implementation for runtime value polymorphism.
-template <typename T>
 struct JointModel final : JointConcept {
     /// @brief Type alias for the type of the data held.
-    using data_type = T;
+    using data_type =
+        cista::offset::variant<RevoluteJointConf, PrismaticJointConf, DistanceJointConf,
+                               PulleyJointConf, TargetJointConf, GearJointConf, WheelJointConf,
+                               WeldJointConf, FrictionJointConf, MotorJointConf, RopeJointConf>;
 
     /// @brief Initializing constructor.
     template <typename U, std::enable_if_t<!std::is_same_v<U, JointModel>, int> = 0>
-    explicit JointModel(U&& arg) noexcept(std::is_nothrow_constructible_v<T, U>)
+    explicit JointModel(U&& arg) noexcept(std::is_nothrow_constructible_v<data_type, U>)
         : data{std::forward<U>(arg)}
     {
         // Intentionally empty.
     }
 
-    /// @copydoc JointConcept::Clone_
+    auto cista_members()
+    {
+        return std::tie(data);
+    }
+
     std::unique_ptr<JointConcept> Clone_() const override
     {
-        return std::make_unique<JointModel<T>>(data);
+        return std::make_unique<JointModel>(data);
+    }
+
+    cista::offset::unique_ptr<JointModel> Clone() const
+    {
+        return cista::offset::make_unique<JointModel>(data);
     }
 
     /// @copydoc JointConcept::GetType_
@@ -79,51 +103,52 @@ struct JointModel final : JointConcept {
         // Would be preferable to do this without using any kind of RTTI system.
         // But how would that be done?
         return (GetType_() == other.GetType_()) &&
-               (data == *static_cast<const T*>(other.GetData_()));
+               (data == *static_cast<const data_type*>(other.GetData_()));
     }
 
     /// @copydoc JointConcept::GetBodyA_
     BodyID GetBodyA_() const noexcept override
     {
-        return GetBodyA(data);
+        return data.apply([](const auto& arg) { return GetBodyA(arg); });
     }
 
     /// @copydoc JointConcept::GetBodyB_
     BodyID GetBodyB_() const noexcept override
     {
-        return GetBodyB(data);
+        return data.apply([](const auto& arg) { return GetBodyB(arg); });
     }
 
     /// @copydoc JointConcept::GetCollideConnected_
     bool GetCollideConnected_() const noexcept override
     {
-        return GetCollideConnected(data);
+        return data.apply([](const auto& arg) { return GetCollideConnected(arg); });
     }
 
     /// @copydoc JointConcept::ShiftOrigin_
     bool ShiftOrigin_(const Length2& value) noexcept override
     {
-        return ShiftOrigin(data, value);
+        return data.apply([&value](auto& arg) { return ShiftOrigin(arg, value); });
     }
 
     /// @copydoc JointConcept::InitVelocity_
     void InitVelocity_(const Span<BodyConstraint>& bodies, const playrho::StepConf& step,
                        const ConstraintSolverConf& conf) override
     {
-        InitVelocity(data, bodies, step, conf);
+        data.apply([&bodies, &step, &conf](auto& arg) { InitVelocity(arg, bodies, step, conf); });
     }
 
     /// @copydoc JointConcept::SolveVelocity_
     bool SolveVelocity_(const Span<BodyConstraint>& bodies, const playrho::StepConf& step) override
     {
-        return SolveVelocity(data, bodies, step);
+        return data.apply([&bodies, &step](auto& arg) { return SolveVelocity(arg, bodies, step); });
     }
 
     /// @copydoc JointConcept::SolvePosition_
     bool SolvePosition_(const Span<BodyConstraint>& bodies,
                         const ConstraintSolverConf& conf) const override
     {
-        return SolvePosition(data, bodies, conf);
+        return data.apply(
+            [&bodies, &conf](const auto& arg) { return SolvePosition(arg, bodies, conf); });
     }
 
     data_type data; ///< Data.

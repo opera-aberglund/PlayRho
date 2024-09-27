@@ -48,6 +48,11 @@ struct JointConf {
     /// @brief Collide connected.
     /// @details Set this flag to true if the attached bodies should collide.
     bool collideConnected = false;
+
+    auto cista_members()
+    {
+        return std::tie(bodyA, bodyA, collideConnected);
+    }
 };
 
 /// @brief Gets the first body attached to this joint.
@@ -69,14 +74,14 @@ constexpr bool GetCollideConnected(const JointConf& object) noexcept
 }
 
 #ifdef _MSC_VER
-#pragma warning( push )
+#pragma warning(push)
 #endif
 
 // Disable MSVC from warning "structure was padded due to alignment specifier".
 // The possibly additional space usage is preferable to U.B. from returning
 // possibly misaligned references.
 #ifdef _MSC_VER
-#pragma warning( disable : 4324 )
+#pragma warning(disable : 4324)
 #endif
 
 /// @brief Joint builder definition structure.
@@ -119,7 +124,7 @@ struct alignas(std::max_align_t) JointBuilder : JointConf {
 };
 
 #ifdef _MSC_VER
-#pragma warning( pop )
+#pragma warning(pop)
 #endif
 
 class Joint;

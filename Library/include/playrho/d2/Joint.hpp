@@ -53,7 +53,7 @@
 namespace playrho {
 struct StepConf;
 struct ConstraintSolverConf;
-}
+} // namespace playrho
 
 namespace playrho::d2 {
 
@@ -167,7 +167,7 @@ public:
 
     /// @brief Copy constructor.
     /// @details This constructor copies all the details of \a other.
-    Joint(const Joint& other) : m_impl{other.m_impl ? other.m_impl->Clone_() : nullptr}
+    Joint(const Joint& other) : m_impl{other.m_impl ? other.m_impl->Clone() : nullptr}
     {
         // Intentionally empty.
     }
@@ -219,16 +219,22 @@ public:
     /// @see https://foonathan.net/2015/10/overload-resolution-1/
     template <typename T, typename Tp = DecayedTypeIfNotSame<T, Joint>,
               typename = std::enable_if_t<std::is_constructible_v<Tp, T>>>
-    explicit Joint(T&& arg) : m_impl{std::make_unique<detail::JointModel<Tp>>(std::forward<T>(arg))}
+    explicit Joint(T&& arg)
+        : m_impl{cista::offset::make_unique<detail::JointModel>(std::forward<T>(arg))}
     {
         // Intentionally empty.
+    }
+
+    auto cista_members()
+    {
+        return std::tie(m_impl);
     }
 
     /// @brief Copy assignment.
     /// @details This operator copies all the details of \a other into <code>*this</code>.
     Joint& operator=(const Joint& other)
     {
-        m_impl = other.m_impl ? other.m_impl->Clone_() : nullptr;
+        m_impl = other.m_impl ? other.m_impl->Clone() : nullptr;
         return *this;
     }
 
@@ -278,7 +284,7 @@ public:
 
     friend bool operator==(const Joint& lhs, const Joint& rhs) noexcept
     {
-        return (lhs.m_impl == rhs.m_impl) ||
+        return (lhs.m_impl.get() == rhs.m_impl.get()) ||
                ((lhs.m_impl && rhs.m_impl) && (lhs.m_impl->IsEqual_(*rhs.m_impl)));
     }
 
@@ -328,7 +334,7 @@ public:
     }
 
 private:
-    std::unique_ptr<detail::JointConcept> m_impl; ///< Pointer to implementation.
+    cista::offset::unique_ptr<detail::JointModel> m_impl; ///< Pointer to implementation.
 };
 
 // Traits...
@@ -459,7 +465,7 @@ inline std::add_pointer_t<T> TypeCast(Joint* value) noexcept
 
 /// @brief Gets whether the given entity is in the is-destroyed state.
 /// @relatedalso Joint
-inline auto IsDestroyed(const Joint &object) noexcept -> bool
+inline auto IsDestroyed(const Joint& object) noexcept -> bool
 {
     return !object.has_value();
 }

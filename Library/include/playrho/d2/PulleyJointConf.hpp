@@ -94,8 +94,13 @@ struct PulleyJointConf : public JointBuilder<PulleyJointConf> {
                     const Length2& gaA = DefaultGroundAnchorA,
                     const Length2& gaB = DefaultGroundAnchorB,
                     const Length2& laA = DefaultLocalAnchorA,
-                    const Length2& laB = DefaultLocalAnchorB,
-                    Length lA = 0_m, Length lB = 0_m);
+                    const Length2& laB = DefaultLocalAnchorB, Length lA = 0_m, Length lB = 0_m);
+
+    auto cista_members()
+    {
+        return std::tie(*static_cast<JointConf*>(this), groundAnchorA, groundAnchorB, localAnchorA,
+                        localAnchorB, lengthA, lengthB, ratio, impulse, uA, uB, rA, rB, mass);
+    }
 
     /// @brief Uses the given ratio value.
     constexpr auto& UseRatio(Real v) noexcept
@@ -196,26 +201,34 @@ bool ShiftOrigin(PulleyJointConf& object, const Length2& newOrigin) noexcept;
 
 /// @brief Initializes velocity constraint data based on the given solver data.
 /// @note This MUST be called prior to calling <code>SolveVelocity</code>.
-/// @param object Configuration object. <code>bodyA</code> and <code>bodyB</code> must index bodies within
-///   the given <code>bodies</code> container or be the special body ID value of <code>InvalidBodyID</code>.
+/// @param object Configuration object. <code>bodyA</code> and <code>bodyB</code> must index bodies
+/// within
+///   the given <code>bodies</code> container or be the special body ID value of
+///   <code>InvalidBodyID</code>.
 /// @param bodies Container of body constraints.
 /// @param step Configuration for the step.
 /// @param conf Constraint solver configuration.
-/// @throws std::out_of_range If the given object's <code>bodyA</code> or <code>bodyB</code> values are not
-///  <code>InvalidBodyID</code> and are not  indices within range of the given <code>bodies</code> container.
+/// @throws std::out_of_range If the given object's <code>bodyA</code> or <code>bodyB</code> values
+/// are not
+///  <code>InvalidBodyID</code> and are not  indices within range of the given <code>bodies</code>
+///  container.
 /// @see SolveVelocity.
 /// @relatedalso PulleyJointConf
-void InitVelocity(PulleyJointConf& object, const Span<BodyConstraint>& bodies,
-                  const StepConf& step, const ConstraintSolverConf& conf);
+void InitVelocity(PulleyJointConf& object, const Span<BodyConstraint>& bodies, const StepConf& step,
+                  const ConstraintSolverConf& conf);
 
 /// @brief Solves velocity constraint.
 /// @pre <code>InitVelocity</code> has been called.
-/// @param object Configuration object. <code>bodyA</code> and <code>bodyB</code> must index bodies within
-///   the given <code>bodies</code> container or be the special body ID value of <code>InvalidBodyID</code>.
+/// @param object Configuration object. <code>bodyA</code> and <code>bodyB</code> must index bodies
+/// within
+///   the given <code>bodies</code> container or be the special body ID value of
+///   <code>InvalidBodyID</code>.
 /// @param bodies Container of body constraints.
 /// @param step Configuration for the step.
-/// @throws std::out_of_range If the given object's <code>bodyA</code> or <code>bodyB</code> values are not
-///  <code>InvalidBodyID</code> and are not  indices within range of the given <code>bodies</code> container.
+/// @throws std::out_of_range If the given object's <code>bodyA</code> or <code>bodyB</code> values
+/// are not
+///  <code>InvalidBodyID</code> and are not  indices within range of the given <code>bodies</code>
+///  container.
 /// @see InitVelocity.
 /// @return <code>true</code> if velocity is "solved", <code>false</code> otherwise.
 /// @relatedalso PulleyJointConf
@@ -223,12 +236,16 @@ bool SolveVelocity(PulleyJointConf& object, const Span<BodyConstraint>& bodies,
                    const StepConf& step);
 
 /// @brief Solves the position constraint.
-/// @param object Configuration object. <code>bodyA</code> and <code>bodyB</code> must index bodies within
-///   the given <code>bodies</code> container or be the special body ID value of <code>InvalidBodyID</code>.
+/// @param object Configuration object. <code>bodyA</code> and <code>bodyB</code> must index bodies
+/// within
+///   the given <code>bodies</code> container or be the special body ID value of
+///   <code>InvalidBodyID</code>.
 /// @param bodies Container of body constraints.
 /// @param conf Constraint solver configuration.
-/// @throws std::out_of_range If the given object's <code>bodyA</code> or <code>bodyB</code> values are not
-///  <code>InvalidBodyID</code> and are not  indices within range of the given <code>bodies</code> container.
+/// @throws std::out_of_range If the given object's <code>bodyA</code> or <code>bodyB</code> values
+/// are not
+///  <code>InvalidBodyID</code> and are not  indices within range of the given <code>bodies</code>
+///  container.
 /// @return <code>true</code> if the position errors are within tolerance.
 /// @relatedalso PulleyJointConf
 bool SolvePosition(const PulleyJointConf& object, const Span<BodyConstraint>& bodies,

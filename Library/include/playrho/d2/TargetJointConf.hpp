@@ -72,9 +72,15 @@ struct TargetJointConf : public JointBuilder<TargetJointConf> {
     constexpr TargetJointConf() noexcept = default;
 
     /// @brief Initializing constructor.
-    constexpr TargetJointConf(BodyID b) noexcept: super{super{}.UseBodyB(b)}
+    constexpr TargetJointConf(BodyID b) noexcept : super{super{}.UseBodyB(b)}
     {
         // Intentionally empty.
+    }
+
+    auto cista_members()
+    {
+        return std::tie(*static_cast<JointConf*>(this), target, localAnchorB, maxForce, frequency,
+                        dampingRatio, gamma, impulse, rB, mass, C);
     }
 
     /// @brief Use value for target.
@@ -217,25 +223,29 @@ Mass22 GetEffectiveMassMatrix(const TargetJointConf& object, const BodyConstrain
 /// @brief Initializes velocity constraint data based on the given solver data.
 /// @note This MUST be called prior to calling <code>SolveVelocity</code>.
 /// @param object Configuration object. <code>bodyB</code> must index a body within
-///   the given <code>bodies</code> container or be the special body ID value of <code>InvalidBodyID</code>.
+///   the given <code>bodies</code> container or be the special body ID value of
+///   <code>InvalidBodyID</code>.
 /// @param bodies Container of body constraints.
 /// @param step Configuration for the step.
 /// @param conf Constraint solver configuration.
 /// @throws std::out_of_range If the given object's <code>bodyB</code> value is not
-///  <code>InvalidBodyID</code> and does not index within range of the given <code>bodies</code> container.
+///  <code>InvalidBodyID</code> and does not index within range of the given <code>bodies</code>
+///  container.
 /// @see SolveVelocity.
 /// @relatedalso TargetJointConf
-void InitVelocity(TargetJointConf& object, const Span<BodyConstraint>& bodies,
-                  const StepConf& step, const ConstraintSolverConf& conf);
+void InitVelocity(TargetJointConf& object, const Span<BodyConstraint>& bodies, const StepConf& step,
+                  const ConstraintSolverConf& conf);
 
 /// @brief Solves velocity constraint.
 /// @pre <code>InitVelocity</code> has been called.
 /// @param object Configuration object. <code>bodyB</code> must index a body within
-///   the given <code>bodies</code> container or be the special body ID value of <code>InvalidBodyID</code>.
+///   the given <code>bodies</code> container or be the special body ID value of
+///   <code>InvalidBodyID</code>.
 /// @param bodies Container of body constraints.
 /// @param step Configuration for the step.
 /// @throws std::out_of_range If the given object's <code>bodyB</code> value is not
-///  <code>InvalidBodyID</code> and does not index within range of the given <code>bodies</code> container.
+///  <code>InvalidBodyID</code> and does not index within range of the given <code>bodies</code>
+///  container.
 /// @see InitVelocity.
 /// @return <code>true</code> if velocity is "solved", <code>false</code> otherwise.
 /// @relatedalso TargetJointConf

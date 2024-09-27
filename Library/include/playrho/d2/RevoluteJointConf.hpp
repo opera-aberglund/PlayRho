@@ -83,6 +83,14 @@ struct RevoluteJointConf : public JointBuilder<RevoluteJointConf> {
                       const Length2& laA = Length2{}, const Length2& laB = Length2{},
                       Angle ra = 0_deg) noexcept;
 
+    auto cista_members()
+    {
+        return std::tie(*static_cast<JointConf*>(this), localAnchorA, localAnchorB, impulse,
+                        angularMotorImpulse, referenceAngle, enableLimit, lowerAngle, upperAngle,
+                        enableMotor, motorSpeed, maxMotorTorque, rA, rB, mass, angularMass,
+                        limitState);
+    }
+
     /// @brief Uses the given enable limit state value.
     constexpr auto& UseEnableLimit(bool v) noexcept
     {
@@ -255,13 +263,17 @@ constexpr AngularMomentum GetAngularReaction(const RevoluteJointConf& conf) noex
 
 /// @brief Initializes velocity constraint data based on the given solver data.
 /// @note This MUST be called prior to calling <code>SolveVelocity</code>.
-/// @param object Configuration object. <code>bodyA</code> and <code>bodyB</code> must index bodies within
-///   the given <code>bodies</code> container or be the special body ID value of <code>InvalidBodyID</code>.
+/// @param object Configuration object. <code>bodyA</code> and <code>bodyB</code> must index bodies
+/// within
+///   the given <code>bodies</code> container or be the special body ID value of
+///   <code>InvalidBodyID</code>.
 /// @param bodies Container of body constraints.
 /// @param step Configuration for the step.
 /// @param conf Constraint solver configuration.
-/// @throws std::out_of_range If the given object's <code>bodyA</code> or <code>bodyB</code> values are not
-///  <code>InvalidBodyID</code> and are not  indices within range of the given <code>bodies</code> container.
+/// @throws std::out_of_range If the given object's <code>bodyA</code> or <code>bodyB</code> values
+/// are not
+///  <code>InvalidBodyID</code> and are not  indices within range of the given <code>bodies</code>
+///  container.
 /// @see SolveVelocityConstraints.
 /// @relatedalso RevoluteJointConf
 void InitVelocity(RevoluteJointConf& object, const Span<BodyConstraint>& bodies,
@@ -269,12 +281,16 @@ void InitVelocity(RevoluteJointConf& object, const Span<BodyConstraint>& bodies,
 
 /// @brief Solves velocity constraint.
 /// @pre <code>InitVelocity</code> has been called.
-/// @param object Configuration object. <code>bodyA</code> and <code>bodyB</code> must index bodies within
-///   the given <code>bodies</code> container or be the special body ID value of <code>InvalidBodyID</code>.
+/// @param object Configuration object. <code>bodyA</code> and <code>bodyB</code> must index bodies
+/// within
+///   the given <code>bodies</code> container or be the special body ID value of
+///   <code>InvalidBodyID</code>.
 /// @param bodies Container of body constraints.
 /// @param step Configuration for the step.
-/// @throws std::out_of_range If the given object's <code>bodyA</code> or <code>bodyB</code> values are not
-///  <code>InvalidBodyID</code> and are not  indices within range of the given <code>bodies</code> container.
+/// @throws std::out_of_range If the given object's <code>bodyA</code> or <code>bodyB</code> values
+/// are not
+///  <code>InvalidBodyID</code> and are not  indices within range of the given <code>bodies</code>
+///  container.
 /// @see InitVelocity.
 /// @return <code>true</code> if velocity is "solved", <code>false</code> otherwise.
 /// @relatedalso RevoluteJointConf
@@ -282,12 +298,16 @@ bool SolveVelocity(RevoluteJointConf& object, const Span<BodyConstraint>& bodies
                    const StepConf& step);
 
 /// @brief Solves the position constraint.
-/// @param object Configuration object. <code>bodyA</code> and <code>bodyB</code> must index bodies within
-///   the given <code>bodies</code> container or be the special body ID value of <code>InvalidBodyID</code>.
+/// @param object Configuration object. <code>bodyA</code> and <code>bodyB</code> must index bodies
+/// within
+///   the given <code>bodies</code> container or be the special body ID value of
+///   <code>InvalidBodyID</code>.
 /// @param bodies Container of body constraints.
 /// @param conf Constraint solver configuration.
-/// @throws std::out_of_range If the given object's <code>bodyA</code> or <code>bodyB</code> values are not
-///  <code>InvalidBodyID</code> and are not  indices within range of the given <code>bodies</code> container.
+/// @throws std::out_of_range If the given object's <code>bodyA</code> or <code>bodyB</code> values
+/// are not
+///  <code>InvalidBodyID</code> and are not  indices within range of the given <code>bodies</code>
+///  container.
 /// @return <code>true</code> if the position errors are within tolerance.
 /// @relatedalso RevoluteJointConf
 bool SolvePosition(const RevoluteJointConf& object, const Span<BodyConstraint>& bodies,

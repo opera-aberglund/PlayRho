@@ -80,13 +80,19 @@ struct GearJointConf : public JointBuilder<GearJointConf> {
     };
 
     /// @brief Type specific data type alias.
-    using TypeData = std::variant<std::monostate, PrismaticData, RevoluteData>;
+    using TypeData = cista::offset::variant<std::monostate, PrismaticData, RevoluteData>;
 
     /// @brief Default constructor.
     constexpr GearJointConf() noexcept = default;
 
     /// @brief Initializing constructor.
     GearJointConf(BodyID bA, BodyID bB, BodyID bC, BodyID bD) noexcept;
+
+    auto cista_members()
+    {
+        return std::tie(*static_cast<JointConf*>(this), bodyC, bodyD, typeDataAC, typeDataBD, ratio,
+                        constant, impulse, JvAC, JvBD, JwA, JwB, JwC, JwD, mass);
+    }
 
     /// @brief Uses the given ratio value.
     constexpr auto& UseRatio(Real v) noexcept
@@ -220,13 +226,17 @@ constexpr bool ShiftOrigin(GearJointConf&, const Length2&) noexcept
 
 /// @brief Initializes velocity constraint data based on the given solver data.
 /// @note This MUST be called prior to calling <code>SolveVelocity</code>.
-/// @param object Configuration object. <code>bodyA</code> and <code>bodyB</code> must index bodies within
-///   the given <code>bodies</code> container or be the special body ID value of <code>InvalidBodyID</code>.
+/// @param object Configuration object. <code>bodyA</code> and <code>bodyB</code> must index bodies
+/// within
+///   the given <code>bodies</code> container or be the special body ID value of
+///   <code>InvalidBodyID</code>.
 /// @param bodies Container of body constraints.
 /// @param step Configuration for the step.
 /// @param conf Constraint solver configuration.
-/// @throws std::out_of_range If the given object's <code>bodyA</code> or <code>bodyB</code> values are not
-///  <code>InvalidBodyID</code> and are not  indices within range of the given <code>bodies</code> container.
+/// @throws std::out_of_range If the given object's <code>bodyA</code> or <code>bodyB</code> values
+/// are not
+///  <code>InvalidBodyID</code> and are not  indices within range of the given <code>bodies</code>
+///  container.
 /// @see SolveVelocity.
 /// @relatedalso GearJointConf
 void InitVelocity(GearJointConf& object, const Span<BodyConstraint>& bodies, const StepConf& step,
@@ -234,25 +244,32 @@ void InitVelocity(GearJointConf& object, const Span<BodyConstraint>& bodies, con
 
 /// @brief Solves velocity constraint.
 /// @pre <code>InitVelocity</code> has been called.
-/// @param object Configuration object. <code>bodyA</code> and <code>bodyB</code> must index bodies within
-///   the given <code>bodies</code> container or be the special body ID value of <code>InvalidBodyID</code>.
+/// @param object Configuration object. <code>bodyA</code> and <code>bodyB</code> must index bodies
+/// within
+///   the given <code>bodies</code> container or be the special body ID value of
+///   <code>InvalidBodyID</code>.
 /// @param bodies Container of body constraints.
 /// @param step Configuration for the step.
-/// @throws std::out_of_range If the given object's <code>bodyA</code> or <code>bodyB</code> values are not
-///  <code>InvalidBodyID</code> and are not  indices within range of the given <code>bodies</code> container.
+/// @throws std::out_of_range If the given object's <code>bodyA</code> or <code>bodyB</code> values
+/// are not
+///  <code>InvalidBodyID</code> and are not  indices within range of the given <code>bodies</code>
+///  container.
 /// @see InitVelocity.
 /// @return <code>true</code> if velocity is "solved", <code>false</code> otherwise.
 /// @relatedalso GearJointConf
-bool SolveVelocity(GearJointConf& object, const Span<BodyConstraint>& bodies,
-                   const StepConf& step);
+bool SolveVelocity(GearJointConf& object, const Span<BodyConstraint>& bodies, const StepConf& step);
 
 /// @brief Solves the position constraint.
-/// @param object Configuration object. <code>bodyA</code> and <code>bodyB</code> must index bodies within
-///   the given <code>bodies</code> container or be the special body ID value of <code>InvalidBodyID</code>.
+/// @param object Configuration object. <code>bodyA</code> and <code>bodyB</code> must index bodies
+/// within
+///   the given <code>bodies</code> container or be the special body ID value of
+///   <code>InvalidBodyID</code>.
 /// @param bodies Container of body constraints.
 /// @param conf Constraint solver configuration.
-/// @throws std::out_of_range If the given object's <code>bodyA</code> or <code>bodyB</code> values are not
-///  <code>InvalidBodyID</code> and are not  indices within range of the given <code>bodies</code> container.
+/// @throws std::out_of_range If the given object's <code>bodyA</code> or <code>bodyB</code> values
+/// are not
+///  <code>InvalidBodyID</code> and are not  indices within range of the given <code>bodies</code>
+///  container.
 /// @return <code>true</code> if the position errors are within tolerance.
 /// @relatedalso GearJointConf
 bool SolvePosition(const GearJointConf& object, const Span<BodyConstraint>& bodies,

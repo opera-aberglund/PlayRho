@@ -607,7 +607,7 @@ public:
 
     auto cista_members()
     {
-        return std::tie(m_bodyBuffer, m_shapeBuffer, m_bodyJoints, m_bodyProxies,
+        return std::tie(m_bodyBuffer, m_shapeBuffer, m_jointBuffer, m_bodyJoints, m_bodyProxies,
                         m_proxiesForContacts, m_fixturesForProxies, m_bodiesForSync, m_bodies,
                         m_joints, m_flags, m_vertexRadius);
     }

@@ -39,12 +39,10 @@ static_assert(std::is_default_constructible_v<GearJointConf>,
               "GearJointConf should be default constructible!");
 static_assert(std::is_copy_constructible_v<GearJointConf>,
               "GearJointConf should be copy constructible!");
-static_assert(std::is_copy_assignable_v<GearJointConf>,
-              "GearJointConf should be copy assignable!");
+static_assert(std::is_copy_assignable_v<GearJointConf>, "GearJointConf should be copy assignable!");
 static_assert(std::is_move_constructible_v<GearJointConf>,
               "GearJointConf should be move constructible!");
-static_assert(std::is_move_assignable_v<GearJointConf>,
-              "GearJointConf should be move assignable!");
+static_assert(std::is_move_assignable_v<GearJointConf>, "GearJointConf should be move assignable!");
 static_assert(std::is_nothrow_destructible_v<GearJointConf>,
               "GearJointConf should be nothrow destructible!");
 
@@ -185,7 +183,7 @@ void InitVelocity(GearJointConf& object, const Span<BodyConstraint>& bodies, con
     auto velC = bodyConstraintC.GetVelocity();
     auto velD = bodyConstraintD.GetVelocity();
     auto invMass = Real{0}; // Unitless to double for either linear mass or angular mass.
-    if (std::holds_alternative<GearJointConf::PrismaticData>(object.typeDataAC)) {
+    if (cista::holds_alternative<GearJointConf::PrismaticData>(object.typeDataAC)) {
         const auto qA = UnitVec::Get(bodyConstraintA.GetPosition().angular);
         const auto qC = UnitVec::Get(bodyConstraintC.GetPosition().angular);
         const auto& typeData = std::get<GearJointConf::PrismaticData>(object.typeDataAC);
@@ -213,7 +211,7 @@ void InitVelocity(GearJointConf& object, const Span<BodyConstraint>& bodies, con
             bodyConstraintA.GetInvRotInertia() + bodyConstraintC.GetInvRotInertia();
         invMass += StripUnit(invAngMass);
     }
-    if (std::holds_alternative<GearJointConf::PrismaticData>(object.typeDataBD)) {
+    if (cista::holds_alternative<GearJointConf::PrismaticData>(object.typeDataBD)) {
         const auto qB = UnitVec::Get(bodyConstraintB.GetPosition().angular);
         const auto qD = UnitVec::Get(bodyConstraintD.GetPosition().angular);
         const auto& typeData = std::get<GearJointConf::PrismaticData>(object.typeDataBD);
@@ -329,7 +327,7 @@ bool SolvePosition(const GearJointConf& object, const Span<BodyConstraint>& bodi
     auto coordinateA = Real{0}; // Angle or length.
     auto coordinateB = Real{0};
     auto invMass = Real{0}; // Inverse linear mass or inverse angular mass.
-    if (std::holds_alternative<GearJointConf::PrismaticData>(object.typeDataAC)) {
+    if (cista::holds_alternative<GearJointConf::PrismaticData>(object.typeDataAC)) {
         const auto qA = UnitVec::Get(posA.angular);
         const auto qC = UnitVec::Get(posC.angular);
         const auto& typeData = std::get<GearJointConf::PrismaticData>(object.typeDataAC);
@@ -350,7 +348,7 @@ bool SolvePosition(const GearJointConf& object, const Span<BodyConstraint>& bodi
         const auto pA = InverseRotate(rA + (posA.linear - posC.linear), qC);
         coordinateA = Dot(pA - pC, typeData.localAxis) / 1_m;
     }
-    else if (std::holds_alternative<GearJointConf::RevoluteData>(object.typeDataAC)) {
+    else if (cista::holds_alternative<GearJointConf::RevoluteData>(object.typeDataAC)) {
         const auto& typeData = std::get<GearJointConf::RevoluteData>(object.typeDataAC);
         JvAC = Vec2{};
         JwA = 1;
@@ -383,7 +381,7 @@ bool SolvePosition(const GearJointConf& object, const Span<BodyConstraint>& bodi
         // coordinateA = GetShortestDelta(typeData.referenceAngle,
         //     GetShortestDelta(posC.angular, posA.angular)) / 1_rad;
     }
-    if (std::holds_alternative<GearJointConf::PrismaticData>(object.typeDataBD)) {
+    if (cista::holds_alternative<GearJointConf::PrismaticData>(object.typeDataBD)) {
         const auto qB = UnitVec::Get(posB.angular);
         const auto qD = UnitVec::Get(posD.angular);
         const auto& typeData = std::get<GearJointConf::PrismaticData>(object.typeDataBD);
@@ -404,7 +402,7 @@ bool SolvePosition(const GearJointConf& object, const Span<BodyConstraint>& bodi
         const auto pB = InverseRotate(rB + (posB.linear - posD.linear), qD);
         coordinateB = Dot(pB - pD, typeData.localAxis) / 1_m;
     }
-    else if (std::holds_alternative<GearJointConf::RevoluteData>(object.typeDataBD)) {
+    else if (cista::holds_alternative<GearJointConf::RevoluteData>(object.typeDataBD)) {
         const auto& typeData = std::get<GearJointConf::RevoluteData>(object.typeDataBD);
         JvBD = Vec2{};
         JwB = object.ratio;
@@ -501,7 +499,7 @@ TypeID GetTypeBD(const GearJointConf& object) noexcept
 
 Length2 GetLocalAnchorA(const GearJointConf& conf)
 {
-    if (const auto pval = std::get_if<GearJointConf::PrismaticData>(&conf.typeDataAC)) {
+    if (const auto pval = cista::get_if<GearJointConf::PrismaticData>(conf.typeDataAC)) {
         return GetLocalAnchorB(*pval);
     }
     return Length2{};
@@ -509,7 +507,7 @@ Length2 GetLocalAnchorA(const GearJointConf& conf)
 
 Length2 GetLocalAnchorB(const GearJointConf& conf)
 {
-    if (const auto pval = std::get_if<GearJointConf::PrismaticData>(&conf.typeDataBD)) {
+    if (const auto pval = cista::get_if<GearJointConf::PrismaticData>(conf.typeDataBD)) {
         return GetLocalAnchorB(*pval);
     }
     return Length2{};
