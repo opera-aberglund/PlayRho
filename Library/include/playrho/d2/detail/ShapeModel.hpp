@@ -262,326 +262,92 @@ struct ShapeModel final : ShapeConcept {
 
     ChildCounter GetChildCount_() const noexcept override
     {
-        if (cista::holds_alternative<DiskShapeConf>(data)) {
-            return GetChildCount(cista::get<DiskShapeConf>(data));
-        }
-        if (cista::holds_alternative<ChainShapeConf>(data)) {
-            return GetChildCount(cista::get<ChainShapeConf>(data));
-        }
-        if (cista::holds_alternative<EdgeShapeConf>(data)) {
-            return GetChildCount(cista::get<EdgeShapeConf>(data));
-        }
-        if (cista::holds_alternative<PolygonShapeConf>(data)) {
-            return GetChildCount(cista::get<PolygonShapeConf>(data));
-        }
-        return GetChildCount(cista::get<MultiShapeConf>(data));
+        return data.apply([](const auto& arg) { return GetChildCount(arg); });
     }
 
     DistanceProxy GetChild_(ChildCounter index) const override
     {
-        if (cista::holds_alternative<DiskShapeConf>(data)) {
-            return GetChild(cista::get<DiskShapeConf>(data), index);
-        }
-        if (cista::holds_alternative<ChainShapeConf>(data)) {
-            return GetChild(cista::get<ChainShapeConf>(data), index);
-        }
-        if (cista::holds_alternative<EdgeShapeConf>(data)) {
-            return GetChild(cista::get<EdgeShapeConf>(data), index);
-        }
-        if (cista::holds_alternative<PolygonShapeConf>(data)) {
-            return GetChild(cista::get<PolygonShapeConf>(data), index);
-        }
-        return GetChild(cista::get<MultiShapeConf>(data), index);
+        return data.apply([index](const auto& arg) { return GetChild(arg, index); });
     }
 
     MassData GetMassData_() const override
     {
-        if (cista::holds_alternative<DiskShapeConf>(data)) {
-            return GetMassData(cista::get<DiskShapeConf>(data));
-        }
-        if (cista::holds_alternative<ChainShapeConf>(data)) {
-            return GetMassData(cista::get<ChainShapeConf>(data));
-        }
-        if (cista::holds_alternative<EdgeShapeConf>(data)) {
-            return GetMassData(cista::get<EdgeShapeConf>(data));
-        }
-        if (cista::holds_alternative<PolygonShapeConf>(data)) {
-            return GetMassData(cista::get<PolygonShapeConf>(data));
-        }
-        return GetMassData(cista::get<MultiShapeConf>(data));
+        return data.apply([](const auto& arg) { return GetMassData(arg); });
     }
 
     NonNegative<Length> GetVertexRadius_(ChildCounter idx) const override
     {
-        if (cista::holds_alternative<DiskShapeConf>(data)) {
-            return GetVertexRadius(cista::get<DiskShapeConf>(data), idx);
-        }
-        if (cista::holds_alternative<ChainShapeConf>(data)) {
-            return GetVertexRadius(cista::get<ChainShapeConf>(data), idx);
-        }
-        if (cista::holds_alternative<EdgeShapeConf>(data)) {
-            return GetVertexRadius(cista::get<EdgeShapeConf>(data), idx);
-        }
-        if (cista::holds_alternative<PolygonShapeConf>(data)) {
-            return GetVertexRadius(cista::get<PolygonShapeConf>(data), idx);
-        }
-        return GetVertexRadius(cista::get<MultiShapeConf>(data), idx);
+        return data.apply([idx](const auto& arg) { return GetVertexRadius(arg, idx); });
     }
 
     void SetVertexRadius_(ChildCounter idx, NonNegative<Length> value) override
     {
-        if (cista::get_if<DiskShapeConf>(data)) {
-            SetVertexRadius(cista::get<DiskShapeConf>(data), idx, value);
-        }
-        else if (cista::holds_alternative<ChainShapeConf>(data)) {
-            SetVertexRadius(cista::get<ChainShapeConf>(data), idx, value);
-        }
-        else if (cista::holds_alternative<EdgeShapeConf>(data)) {
-            SetVertexRadius(cista::get<EdgeShapeConf>(data), idx, value);
-        }
-        else if (cista::holds_alternative<PolygonShapeConf>(data)) {
-            SetVertexRadius(cista::get<PolygonShapeConf>(data), idx, value);
-        }
-        else {
-            SetVertexRadius(cista::get<MultiShapeConf>(data), idx, value);
-        }
+        data.apply([idx, value](auto& arg) { SetVertexRadius(arg, idx, value); });
     }
 
     NonNegative<AreaDensity> GetDensity_() const noexcept override
     {
-        if (cista::holds_alternative<DiskShapeConf>(data)) {
-            return GetDensity(cista::get<DiskShapeConf>(data));
-        }
-        if (cista::holds_alternative<ChainShapeConf>(data)) {
-            return GetDensity(cista::get<ChainShapeConf>(data));
-        }
-        if (cista::holds_alternative<EdgeShapeConf>(data)) {
-            return GetDensity(cista::get<EdgeShapeConf>(data));
-        }
-        if (cista::holds_alternative<PolygonShapeConf>(data)) {
-            return GetDensity(cista::get<PolygonShapeConf>(data));
-        }
-        return GetDensity(cista::get<MultiShapeConf>(data));
+        return data.apply([](const auto& arg) { return GetDensity(arg); });
     }
 
     void SetDensity_(NonNegative<AreaDensity> value) noexcept override
     {
-        if (cista::holds_alternative<DiskShapeConf>(data)) {
-            SetDensity(cista::get<DiskShapeConf>(data), value);
-        }
-        else if (cista::holds_alternative<ChainShapeConf>(data)) {
-            SetDensity(cista::get<ChainShapeConf>(data), value);
-        }
-        else if (cista::holds_alternative<EdgeShapeConf>(data)) {
-            SetDensity(cista::get<EdgeShapeConf>(data), value);
-        }
-        else if (cista::holds_alternative<PolygonShapeConf>(data)) {
-            SetDensity(cista::get<PolygonShapeConf>(data), value);
-        }
-        else {
-            SetDensity(cista::get<MultiShapeConf>(data), value);
-        }
+        data.apply([value](auto& arg) { SetDensity(arg, value); });
     }
 
     NonNegativeFF<Real> GetFriction_() const noexcept override
     {
-        if (cista::holds_alternative<DiskShapeConf>(data)) {
-            return GetFriction(cista::get<DiskShapeConf>(data));
-        }
-        if (cista::holds_alternative<ChainShapeConf>(data)) {
-            return GetFriction(cista::get<ChainShapeConf>(data));
-        }
-        if (cista::holds_alternative<EdgeShapeConf>(data)) {
-            return GetFriction(cista::get<EdgeShapeConf>(data));
-        }
-        if (cista::holds_alternative<PolygonShapeConf>(data)) {
-            return GetFriction(cista::get<PolygonShapeConf>(data));
-        }
-        return GetFriction(cista::get<MultiShapeConf>(data));
+        return data.apply([](const auto& arg) { return GetFriction(arg); });
     }
 
     void SetFriction_(NonNegative<Real> value) override
     {
-        if (cista::holds_alternative<DiskShapeConf>(data)) {
-            SetFriction(cista::get<DiskShapeConf>(data), value);
-        }
-        else if (cista::holds_alternative<ChainShapeConf>(data)) {
-            SetFriction(cista::get<ChainShapeConf>(data), value);
-        }
-        else if (cista::holds_alternative<EdgeShapeConf>(data)) {
-            SetFriction(cista::get<EdgeShapeConf>(data), value);
-        }
-        else if (cista::holds_alternative<PolygonShapeConf>(data)) {
-            SetFriction(cista::get<PolygonShapeConf>(data), value);
-        }
-        else {
-            SetFriction(cista::get<MultiShapeConf>(data), value);
-        }
+        data.apply([value](auto& arg) { SetFriction(arg, value); });
     }
 
     Real GetRestitution_() const noexcept override
     {
-        if (cista::holds_alternative<DiskShapeConf>(data)) {
-            return GetRestitution(cista::get<DiskShapeConf>(data));
-        }
-        if (cista::holds_alternative<ChainShapeConf>(data)) {
-            return GetRestitution(cista::get<ChainShapeConf>(data));
-        }
-        if (cista::holds_alternative<EdgeShapeConf>(data)) {
-            return GetRestitution(cista::get<EdgeShapeConf>(data));
-        }
-        if (cista::holds_alternative<PolygonShapeConf>(data)) {
-            return GetRestitution(cista::get<PolygonShapeConf>(data));
-        }
-        return GetRestitution(cista::get<MultiShapeConf>(data));
+        return data.apply([](const auto& arg) { return GetRestitution(arg); });
     }
 
     void SetRestitution_(Real value) override
     {
-        if (cista::holds_alternative<DiskShapeConf>(data)) {
-            SetRestitution(cista::get<DiskShapeConf>(data), value);
-        }
-        else if (cista::holds_alternative<ChainShapeConf>(data)) {
-            SetRestitution(cista::get<ChainShapeConf>(data), value);
-        }
-        else if (cista::holds_alternative<EdgeShapeConf>(data)) {
-            SetRestitution(cista::get<EdgeShapeConf>(data), value);
-        }
-        else if (cista::holds_alternative<PolygonShapeConf>(data)) {
-            SetRestitution(cista::get<PolygonShapeConf>(data), value);
-        }
-        else {
-            SetRestitution(cista::get<MultiShapeConf>(data), value);
-        }
+        data.apply([value](auto& arg) { SetRestitution(arg, value); });
     }
 
     Filter GetFilter_() const noexcept override
     {
-        if (cista::holds_alternative<DiskShapeConf>(data)) {
-            return GetFilter(cista::get<DiskShapeConf>(data));
-        }
-        if (cista::holds_alternative<ChainShapeConf>(data)) {
-            return GetFilter(cista::get<ChainShapeConf>(data));
-        }
-        if (cista::holds_alternative<EdgeShapeConf>(data)) {
-            return GetFilter(cista::get<EdgeShapeConf>(data));
-        }
-        if (cista::holds_alternative<PolygonShapeConf>(data)) {
-            return GetFilter(cista::get<PolygonShapeConf>(data));
-        }
-        return GetFilter(cista::get<MultiShapeConf>(data));
+        return data.apply([](const auto& arg) { return GetFilter(arg); });
     }
 
     void SetFilter_(Filter value) override
     {
-        if (cista::holds_alternative<DiskShapeConf>(data)) {
-            SetFilter(cista::get<DiskShapeConf>(data), value);
-        }
-        else if (cista::holds_alternative<ChainShapeConf>(data)) {
-            SetFilter(cista::get<ChainShapeConf>(data), value);
-        }
-        else if (cista::holds_alternative<EdgeShapeConf>(data)) {
-            SetFilter(cista::get<EdgeShapeConf>(data), value);
-        }
-        else if (cista::holds_alternative<PolygonShapeConf>(data)) {
-            SetFilter(cista::get<PolygonShapeConf>(data), value);
-        }
-        else {
-            SetFilter(cista::get<MultiShapeConf>(data), value);
-        }
+        data.apply([value](auto& arg) { SetFilter(arg, value); });
     }
 
     bool IsSensor_() const noexcept override
     {
-        if (cista::holds_alternative<DiskShapeConf>(data)) {
-            return IsSensor(cista::get<DiskShapeConf>(data));
-        }
-        if (cista::holds_alternative<ChainShapeConf>(data)) {
-            return IsSensor(cista::get<ChainShapeConf>(data));
-        }
-        if (cista::holds_alternative<EdgeShapeConf>(data)) {
-            return IsSensor(cista::get<EdgeShapeConf>(data));
-        }
-        if (cista::holds_alternative<PolygonShapeConf>(data)) {
-            return IsSensor(cista::get<PolygonShapeConf>(data));
-        }
-        return IsSensor(cista::get<MultiShapeConf>(data));
+        return data.apply([](const auto& arg) { return IsSensor(arg); });
     }
 
     void SetSensor_(bool value) override
     {
-        if (cista::holds_alternative<DiskShapeConf>(data)) {
-            SetSensor(cista::get<DiskShapeConf>(data), value);
-        }
-        else if (cista::holds_alternative<ChainShapeConf>(data)) {
-            SetSensor(cista::get<ChainShapeConf>(data), value);
-        }
-        else if (cista::holds_alternative<EdgeShapeConf>(data)) {
-            SetSensor(cista::get<EdgeShapeConf>(data), value);
-        }
-        else if (cista::holds_alternative<PolygonShapeConf>(data)) {
-            SetSensor(cista::get<PolygonShapeConf>(data), value);
-        }
-        else {
-            SetSensor(cista::get<MultiShapeConf>(data), value);
-        }
+        data.apply([value](auto& arg) { SetSensor(arg, value); });
     }
 
     void Translate_(const Length2& value) override
     {
-        if (cista::holds_alternative<DiskShapeConf>(data)) {
-            Translate(cista::get<DiskShapeConf>(data), value);
-        }
-        else if (cista::holds_alternative<ChainShapeConf>(data)) {
-            Translate(cista::get<ChainShapeConf>(data), value);
-        }
-        else if (cista::holds_alternative<EdgeShapeConf>(data)) {
-            Translate(cista::get<EdgeShapeConf>(data), value);
-        }
-        else if (cista::holds_alternative<PolygonShapeConf>(data)) {
-            Translate(cista::get<PolygonShapeConf>(data), value);
-        }
-        else {
-            Translate(cista::get<MultiShapeConf>(data), value);
-        }
+        data.apply([value](auto& arg) { Translate(arg, value); });
     }
 
     void Scale_(const Vec2& value) override
     {
-        if (cista::holds_alternative<DiskShapeConf>(data)) {
-            Scale(cista::get<DiskShapeConf>(data), value);
-        }
-        else if (cista::holds_alternative<ChainShapeConf>(data)) {
-            Scale(cista::get<ChainShapeConf>(data), value);
-        }
-        else if (cista::holds_alternative<EdgeShapeConf>(data)) {
-            Scale(cista::get<EdgeShapeConf>(data), value);
-        }
-        else if (cista::holds_alternative<PolygonShapeConf>(data)) {
-            Scale(cista::get<PolygonShapeConf>(data), value);
-        }
-        else {
-            Scale(cista::get<MultiShapeConf>(data), value);
-        }
+        data.apply([value](auto& arg) { Scale(arg, value); });
     }
 
     void Rotate_(const UnitVec& value) override
     {
-        if (cista::holds_alternative<DiskShapeConf>(data)) {
-            Rotate(cista::get<DiskShapeConf>(data), value);
-        }
-        else if (cista::holds_alternative<ChainShapeConf>(data)) {
-            Rotate(cista::get<ChainShapeConf>(data), value);
-        }
-        else if (cista::holds_alternative<EdgeShapeConf>(data)) {
-            Rotate(cista::get<EdgeShapeConf>(data), value);
-        }
-        else if (cista::holds_alternative<PolygonShapeConf>(data)) {
-            Rotate(cista::get<PolygonShapeConf>(data), value);
-        }
-        else {
-            Rotate(cista::get<MultiShapeConf>(data), value);
-        }
+        data.apply([value](auto& arg) { Rotate(arg, value); });
     }
 
     bool IsEqual_(const ShapeConcept& other) const noexcept override
