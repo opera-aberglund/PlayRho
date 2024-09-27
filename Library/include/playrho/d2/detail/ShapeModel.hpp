@@ -232,7 +232,7 @@ auto Rotate(T&, const UnitVec& value)
 
 /// @brief Internal model configuration concept.
 /// @note Provides an implementation for runtime polymorphism for shape configuration.
-struct ShapeModel final {
+struct ShapeModel final : ShapeConcept {
     /// @brief Type alias for the type of the data held.
     using data_type = cista::offset::variant<DiskShapeConf, ChainShapeConf, EdgeShapeConf,
                                              PolygonShapeConf, MultiShapeConf>;
@@ -250,12 +250,17 @@ struct ShapeModel final {
         return std::tie(data);
     }
 
-    cista::offset::unique_ptr<ShapeModel> Clone_() const
+    std::unique_ptr<ShapeConcept> Clone_() const override
+    {
+        return std::make_unique<ShapeModel>(data);
+    }
+
+    cista::offset::unique_ptr<ShapeModel> Clone() const
     {
         return cista::offset::make_unique<ShapeModel>(data);
     }
 
-    ChildCounter GetChildCount_() const noexcept
+    ChildCounter GetChildCount_() const noexcept override
     {
         if (cista::holds_alternative<DiskShapeConf>(data)) {
             return GetChildCount(cista::get<DiskShapeConf>(data));
@@ -272,7 +277,7 @@ struct ShapeModel final {
         return GetChildCount(cista::get<MultiShapeConf>(data));
     }
 
-    DistanceProxy GetChild_(ChildCounter index) const
+    DistanceProxy GetChild_(ChildCounter index) const override
     {
         if (cista::holds_alternative<DiskShapeConf>(data)) {
             return GetChild(cista::get<DiskShapeConf>(data), index);
@@ -289,7 +294,7 @@ struct ShapeModel final {
         return GetChild(cista::get<MultiShapeConf>(data), index);
     }
 
-    MassData GetMassData_() const
+    MassData GetMassData_() const override
     {
         if (cista::holds_alternative<DiskShapeConf>(data)) {
             return GetMassData(cista::get<DiskShapeConf>(data));
@@ -306,7 +311,7 @@ struct ShapeModel final {
         return GetMassData(cista::get<MultiShapeConf>(data));
     }
 
-    NonNegative<Length> GetVertexRadius_(ChildCounter idx) const
+    NonNegative<Length> GetVertexRadius_(ChildCounter idx) const override
     {
         if (cista::holds_alternative<DiskShapeConf>(data)) {
             return GetVertexRadius(cista::get<DiskShapeConf>(data), idx);
@@ -323,9 +328,9 @@ struct ShapeModel final {
         return GetVertexRadius(cista::get<MultiShapeConf>(data), idx);
     }
 
-    void SetVertexRadius_(ChildCounter idx, NonNegative<Length> value)
+    void SetVertexRadius_(ChildCounter idx, NonNegative<Length> value) override
     {
-        if (cista::holds_alternative<DiskShapeConf>(data)) {
+        if (cista::get_if<DiskShapeConf>(data)) {
             SetVertexRadius(cista::get<DiskShapeConf>(data), idx, value);
         }
         else if (cista::holds_alternative<ChainShapeConf>(data)) {
@@ -342,7 +347,7 @@ struct ShapeModel final {
         }
     }
 
-    NonNegative<AreaDensity> GetDensity_() const noexcept
+    NonNegative<AreaDensity> GetDensity_() const noexcept override
     {
         if (cista::holds_alternative<DiskShapeConf>(data)) {
             return GetDensity(cista::get<DiskShapeConf>(data));
@@ -359,7 +364,7 @@ struct ShapeModel final {
         return GetDensity(cista::get<MultiShapeConf>(data));
     }
 
-    void SetDensity_(NonNegative<AreaDensity> value) noexcept
+    void SetDensity_(NonNegative<AreaDensity> value) noexcept override
     {
         if (cista::holds_alternative<DiskShapeConf>(data)) {
             SetDensity(cista::get<DiskShapeConf>(data), value);
@@ -378,7 +383,7 @@ struct ShapeModel final {
         }
     }
 
-    NonNegativeFF<Real> GetFriction_() const noexcept
+    NonNegativeFF<Real> GetFriction_() const noexcept override
     {
         if (cista::holds_alternative<DiskShapeConf>(data)) {
             return GetFriction(cista::get<DiskShapeConf>(data));
@@ -395,7 +400,7 @@ struct ShapeModel final {
         return GetFriction(cista::get<MultiShapeConf>(data));
     }
 
-    void SetFriction_(NonNegative<Real> value)
+    void SetFriction_(NonNegative<Real> value) override
     {
         if (cista::holds_alternative<DiskShapeConf>(data)) {
             SetFriction(cista::get<DiskShapeConf>(data), value);
@@ -414,7 +419,7 @@ struct ShapeModel final {
         }
     }
 
-    Real GetRestitution_() const noexcept
+    Real GetRestitution_() const noexcept override
     {
         if (cista::holds_alternative<DiskShapeConf>(data)) {
             return GetRestitution(cista::get<DiskShapeConf>(data));
@@ -431,7 +436,7 @@ struct ShapeModel final {
         return GetRestitution(cista::get<MultiShapeConf>(data));
     }
 
-    void SetRestitution_(Real value)
+    void SetRestitution_(Real value) override
     {
         if (cista::holds_alternative<DiskShapeConf>(data)) {
             SetRestitution(cista::get<DiskShapeConf>(data), value);
@@ -450,7 +455,7 @@ struct ShapeModel final {
         }
     }
 
-    Filter GetFilter_() const noexcept
+    Filter GetFilter_() const noexcept override
     {
         if (cista::holds_alternative<DiskShapeConf>(data)) {
             return GetFilter(cista::get<DiskShapeConf>(data));
@@ -467,7 +472,7 @@ struct ShapeModel final {
         return GetFilter(cista::get<MultiShapeConf>(data));
     }
 
-    void SetFilter_(Filter value)
+    void SetFilter_(Filter value) override
     {
         if (cista::holds_alternative<DiskShapeConf>(data)) {
             SetFilter(cista::get<DiskShapeConf>(data), value);
@@ -486,7 +491,7 @@ struct ShapeModel final {
         }
     }
 
-    bool IsSensor_() const noexcept
+    bool IsSensor_() const noexcept override
     {
         if (cista::holds_alternative<DiskShapeConf>(data)) {
             return IsSensor(cista::get<DiskShapeConf>(data));
@@ -503,7 +508,7 @@ struct ShapeModel final {
         return IsSensor(cista::get<MultiShapeConf>(data));
     }
 
-    void SetSensor_(bool value)
+    void SetSensor_(bool value) override
     {
         if (cista::holds_alternative<DiskShapeConf>(data)) {
             SetSensor(cista::get<DiskShapeConf>(data), value);
@@ -522,7 +527,7 @@ struct ShapeModel final {
         }
     }
 
-    void Translate_(const Length2& value)
+    void Translate_(const Length2& value) override
     {
         if (cista::holds_alternative<DiskShapeConf>(data)) {
             Translate(cista::get<DiskShapeConf>(data), value);
@@ -541,7 +546,7 @@ struct ShapeModel final {
         }
     }
 
-    void Scale_(const Vec2& value)
+    void Scale_(const Vec2& value) override
     {
         if (cista::holds_alternative<DiskShapeConf>(data)) {
             Scale(cista::get<DiskShapeConf>(data), value);
@@ -560,7 +565,7 @@ struct ShapeModel final {
         }
     }
 
-    void Rotate_(const UnitVec& value)
+    void Rotate_(const UnitVec& value) override
     {
         if (cista::holds_alternative<DiskShapeConf>(data)) {
             Rotate(cista::get<DiskShapeConf>(data), value);
@@ -579,19 +584,20 @@ struct ShapeModel final {
         }
     }
 
-    bool IsEqual_(const ShapeModel& other) const noexcept
+    bool IsEqual_(const ShapeConcept& other) const noexcept override
     {
         // Would be preferable to do this without using any kind of RTTI system.
         // But how would that be done?
-        return (GetType_() == other.GetType_()) && (data == other.data);
+        return (GetType_() == other.GetType_()) &&
+               (data == *static_cast<const data_type*>(other.GetData_()));
     }
 
-    TypeID GetType_() const noexcept
+    TypeID GetType_() const noexcept override
     {
         return GetTypeID<data_type>();
     }
 
-    const void* GetData_() const noexcept
+    const void* GetData_() const noexcept override
     {
         // Note address of "data" not necessarily same as address of "this" since
         // base class is virtual.

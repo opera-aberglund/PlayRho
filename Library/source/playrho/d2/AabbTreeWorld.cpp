@@ -439,8 +439,8 @@ bool FlagForFiltering(ObjectPool<Contact>& contactBuffer, BodyID bodyA,
                       const KeyedContactIDs& contactsBodyB, BodyID bodyB) noexcept
 {
     auto anyFlagged = false;
-    for (const auto& [contactKey, contactID] : contactsBodyB) {
-        auto& contact = contactBuffer[to_underlying(contactID)];
+    for (const auto& ci : contactsBodyB) {
+        auto& contact = contactBuffer[to_underlying(std::get<ContactID>(ci))];
         if (GetOtherBody(contact, bodyB) == bodyA) {
             // Flag the contact for filtering at the next time step (where either
             // body is awake).
@@ -461,7 +461,7 @@ template <typename T>
 void FlagForUpdating(ObjectPool<Contact>& contactsBuffer, const T& contacts) noexcept
 {
     std::for_each(begin(contacts), end(contacts), [&](const auto& ci) {
-        contactsBuffer[to_underlying(ci.second)].FlagForUpdating();
+        contactsBuffer[to_underlying(std::get<ContactID>(ci))].FlagForUpdating();
     });
 }
 
@@ -514,15 +514,16 @@ void ResetBodyContactsForSolveTOI(ObjectPool<Contact>& buffer,
                                   const KeyedContactIDs& contacts) noexcept
 {
     // Invalidate all contact TOIs on this displaced body.
-    for_each(cbegin(contacts), cend(contacts),
-             [&buffer](const auto& ci) { SetToi(buffer[to_underlying(ci.second)], {}); });
+    for_each(cbegin(contacts), cend(contacts), [&buffer](const auto& ci) {
+        SetToi(buffer[to_underlying(std::get<ContactID>(ci))], {});
+    });
 }
 
 /// @brief Reset contacts for solve TOI.
 void ResetContactsForSolveTOI(ObjectPool<Contact>& buffer, const KeyedContactIDs& contacts) noexcept
 {
-    for_each(begin(contacts), end(contacts), [&buffer](const KeyedContactID& c) {
-        auto& contact = buffer[to_underlying(c.second)];
+    for_each(begin(contacts), end(contacts), [&buffer](const auto& c) {
+        auto& contact = buffer[to_underlying(std::get<ContactID>(c))];
         SetToi(contact, {});
         SetToiCount(contact, 0);
     });
@@ -565,22 +566,20 @@ auto CreateProxies(DynamicTree& tree, BodyID bodyID, ShapeID shapeID, const Shap
 }
 
 template <typename Element, typename Value>
+auto FindTypeValue(const std::vector<Element>& container, const Value& value)
+{
+    const auto last = end(container);
+    auto it = std::find_if(begin(container), last,
+                           [value](const auto& elem) { return std::get<Value>(elem) == value; });
+    return (it != last) ? std::optional<decltype(it)>{it} : std::optional<decltype(it)>{};
+}
+
+template <typename Element, typename Value>
 auto FindTypeValue(cista::offset::vector<Element>& container, const Value& value)
 {
     const auto last = end(container);
-
-    using KeyType = typename Element::first_type;
-    using ValueType = typename Element::second_type;
-
-    auto it = std::find_if(begin(container), last, [value](const auto& elem) {
-        if constexpr (std::is_same_v<Value, KeyType>) {
-            return elem.first == value; // If Value matches the key type, compare elem.first
-        }
-        else if constexpr (std::is_same_v<Value, ValueType>) {
-            return elem.second == value; // If Value matches the value type, compare elem.second
-        }
-        return false;
-    });
+    auto it = std::find_if(begin(container), last,
+                           [value](const auto& elem) { return std::get<Value>(elem) == value; });
     return (it != last) ? std::optional<decltype(it)>{it} : std::optional<decltype(it)>{};
 }
 
@@ -597,7 +596,7 @@ void Erase(BodyContactIDs& contacts, const std::function<bool(ContactID)>& callb
     auto iter = begin(contacts);
     auto index = KeyedContactIDs::difference_type(0);
     while (iter != last) {
-        const auto contact = iter->second;
+        const auto contact = std::get<ContactID>(*iter);
         if (callback(contact)) {
             contacts.erase(iter);
             iter = begin(contacts) + index;
@@ -1432,7 +1431,7 @@ void AabbTreeWorld::AddContactsToIsland(Island& island, BodyStack& stack,
                                         const BodyContactIDs& contacts, BodyID bodyID)
 {
     for_each(cbegin(contacts), cend(contacts), [&](const auto& ci) {
-        const auto contactID = ci.second;
+        const auto contactID = std::get<ContactID>(ci);
         if (!m_islanded.contacts[to_underlying(contactID)]) {
             const auto& contact = m_contactBuffer[to_underlying(contactID)];
             if (IsEnabled(contact) && IsTouching(contact) && !IsSensor(contact)) {
@@ -1687,8 +1686,8 @@ AabbTreeWorld::UpdateContactsData AabbTreeWorld::UpdateContactTOIs(const StepCon
     auto results = UpdateContactsData{};
 
     const auto toiConf = GetToiConf(conf);
-    for (const auto& [contactKey, contactID] : m_contacts) {
-        auto& c = m_contactBuffer[to_underlying(contactID)];
+    for (const auto& contact : m_contacts) {
+        auto& c = m_contactBuffer[to_underlying(std::get<ContactID>(contact))];
         if (HasValidToi(c)) {
             ++results.numValidTOI;
             continue;
@@ -2080,7 +2079,8 @@ AabbTreeWorld::ProcessContactsForTOI( // NOLINT(readability-function-cognitive-c
 
     // Note: the original contact (for body of which this function was called) already is-in-island.
     const auto bodyImpenetrable = IsImpenetrable(body);
-    for (const auto& [contactKey, contactID] : m_bodyContacts[to_underlying(id)]) {
+    for (const auto& ci : m_bodyContacts[to_underlying(id)]) {
+        const auto contactID = std::get<ContactID>(ci);
         if (!m_islanded.contacts[to_underlying(contactID)]) {
             auto& contact = m_contactBuffer[to_underlying(contactID)];
             if (!IsSensor(contact)) {
@@ -2301,11 +2301,11 @@ AabbTreeWorld::DestroyContactsStats AabbTreeWorld::DestroyContacts(KeyedContactI
     const auto beforeOverlapSize = size(contacts);
     contacts.erase(std::remove_if(begin(contacts), end(contacts),
                                   [&](const auto& c) {
-                                      const auto key = c.first;
+                                      const auto key = std::get<ContactKey>(c);
                                       if (!TestOverlap(m_tree, key.GetMin(), key.GetMax())) {
                                           // Destroy contacts that cease to overlap in the
                                           // broad-phase.
-                                          InternalDestroy(c.second);
+                                          InternalDestroy(std::get<ContactID>(c));
                                           return true;
                                       }
                                       return false;
@@ -2318,7 +2318,7 @@ AabbTreeWorld::DestroyContactsStats AabbTreeWorld::DestroyContacts(KeyedContactI
             std::remove_if(
                 begin(contacts), end(contacts),
                 [&](const auto& c) {
-                    const auto contactID = c.second;
+                    const auto contactID = std::get<ContactID>(c);
                     auto& contact = m_contactBuffer[to_underlying(contactID)];
                     if (contact.NeedsFiltering()) {
                         const auto bodyIdA = GetBodyA(contact);
@@ -2366,7 +2366,7 @@ AabbTreeWorld::UpdateContactsStats AabbTreeWorld::UpdateContacts(const StepConf&
 
     // Update awake contacts.
     for_each(/*execution::par_unseq,*/ begin(m_contacts), end(m_contacts), [&](const auto& c) {
-        const auto contactID = c.second;
+        const auto contactID = std::get<ContactID>(c);
         auto& contact = m_contactBuffer[to_underlying(contactID)];
 #ifndef NDEBUG
         const auto& bodyA = m_bodyBuffer[to_underlying(GetBodyA(contact))];
@@ -2888,7 +2888,8 @@ ContactID GetSoonestContact(const Span<const KeyedContactID>& ids,
 {
     auto found = InvalidContactID;
     auto minToi = UnitIntervalFF<Real>{Real(1)};
-    for (const auto& [contactKey, contactID] : ids) {
+    for (const auto& id : ids) {
+        const auto contactID = std::get<ContactID>(id);
         assert(to_underlying(contactID) < contacts.size());
         const auto& c = contacts[to_underlying(contactID)];
         if (const auto toi = c.GetToi()) {

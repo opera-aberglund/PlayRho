@@ -391,8 +391,7 @@ cista::offset::vector<std::pair<BodyID, JointID>> GetJoints(const World& world, 
 ///   miss some collisions if you don't use <code>ContactFunction</code>.
 /// @throws std::out_of_range If given an out of range body identifier.
 /// @see GetBodyRange.
-cista::offset::vector<cista::offset::pair<ContactKey, ContactID>> GetContacts(const World& world,
-                                                                              BodyID id);
+std::vector<std::pair<ContactKey, ContactID>> GetContacts(const World& world, BodyID id);
 
 /// @brief Gets the identities of the shapes associated with the identified body.
 /// @throws std::out_of_range If given an out of range body identifier.
@@ -560,7 +559,7 @@ ContactCounter GetContactRange(const World& world) noexcept;
 /// @brief Gets the contacts identified within the given world.
 /// @note Further information for each element of the returned container
 ///   is available from functions like @c GetContact or @c GetManifold.
-cista::offset::vector<KeyedContactID> GetContacts(const World& world);
+std::vector<KeyedContactID> GetContacts(const World& world);
 
 /// @brief Gets the identified contact.
 /// @throws std::out_of_range If given an out of range contact identifier.
@@ -823,8 +822,7 @@ public:
     friend void Destroy(World& world, BodyID id);
     friend cista::offset::vector<std::pair<BodyID, JointID>> GetJoints(const World& world,
                                                                        BodyID id);
-    friend cista::offset::vector<cista::offset::pair<ContactKey, ContactID>>
-    GetContacts(const World& world, BodyID id);
+    friend std::vector<std::pair<ContactKey, ContactID>> GetContacts(const World& world, BodyID id);
     friend cista::offset::vector<ShapeID> GetShapes(const World& world, BodyID id);
 
     // Joint friend functions...
@@ -844,7 +842,7 @@ public:
 
     // Contact friend functions...
     friend ContactCounter GetContactRange(const World& world) noexcept;
-    friend cista::offset::vector<KeyedContactID> GetContacts(const World& world);
+    friend std::vector<KeyedContactID> GetContacts(const World& world);
     friend Contact GetContact(const World& world, ContactID id);
     friend void SetContact(World& world, ContactID id, const Contact& value);
     friend Manifold GetManifold(const World& world, ContactID id);
@@ -1011,8 +1009,7 @@ inline cista::offset::vector<std::pair<BodyID, JointID>> GetJoints(const World& 
     return world.m_impl->GetJoints_(id);
 }
 
-inline cista::offset::vector<cista::offset::pair<ContactKey, ContactID>>
-GetContacts(const World& world, BodyID id)
+inline std::vector<std::pair<ContactKey, ContactID>> GetContacts(const World& world, BodyID id)
 {
     return world.m_impl->GetContacts_(id);
 }
@@ -1088,7 +1085,7 @@ inline ContactCounter GetContactRange(const World& world) noexcept
     return world.m_impl->GetContactRange_();
 }
 
-inline cista::offset::vector<KeyedContactID> GetContacts(const World& world)
+inline std::vector<KeyedContactID> GetContacts(const World& world)
 {
     return world.m_impl->GetContacts_();
 }

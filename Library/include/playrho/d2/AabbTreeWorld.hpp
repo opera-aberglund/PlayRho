@@ -93,14 +93,14 @@ class AabbTreeWorld;
 using BodyIDs = cista::offset::vector<BodyID>;
 
 /// @brief Keyed contact IDs container type.
-using KeyedContactIDs = cista::offset::vector<KeyedContactID>;
+using KeyedContactIDs = std::vector<KeyedContactID>;
 
 /// @brief Joint IDs container type.
 /// @note Cannot be container of Joint instances since joints are polymorphic types.
 using JointIDs = cista::offset::vector<JointID>;
 
 /// @brief Container type for Body associated contact information.
-using BodyContactIDs = cista::offset::vector<cista::offset::pair<ContactKey, ContactID>>;
+using BodyContactIDs = std::vector<std::pair<ContactKey, ContactID>>;
 
 /// @brief Body joint IDs container type.
 using BodyJointIDs = cista::offset::vector<std::pair<BodyID, JointID>>;

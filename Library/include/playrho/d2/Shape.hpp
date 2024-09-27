@@ -225,7 +225,7 @@ public:
     Shape() noexcept = default;
 
     /// @brief Copy constructor.
-    Shape(const Shape& other) : m_impl{other.m_impl ? other.m_impl->Clone_() : nullptr}
+    Shape(const Shape& other) : m_impl{other.m_impl ? other.m_impl->Clone() : nullptr}
     {
         // Intentionally empty.
     }
@@ -258,7 +258,7 @@ public:
     /// @brief Copy assignment.
     Shape& operator=(const Shape& other)
     {
-        m_impl = other.m_impl ? other.m_impl->Clone_() : nullptr;
+        m_impl = other.m_impl ? other.m_impl->Clone() : nullptr;
         return *this;
     }
 
@@ -321,7 +321,7 @@ public:
     friend void SetVertexRadius(Shape& shape, ChildCounter idx, NonNegative<Length> value)
     {
         if (shape.m_impl) {
-            auto copy = shape.m_impl->Clone_();
+            auto copy = shape.m_impl->Clone();
             copy->SetVertexRadius_(idx, value);
             shape.m_impl = std::move(copy);
         }
@@ -335,7 +335,7 @@ public:
     friend void SetFriction(Shape& shape, NonNegative<Real> value)
     {
         if (shape.m_impl) {
-            auto copy = shape.m_impl->Clone_();
+            auto copy = shape.m_impl->Clone();
             copy->SetFriction_(value);
             shape.m_impl = std::move(copy);
         }
@@ -349,7 +349,7 @@ public:
     friend void SetRestitution(Shape& shape, Real value)
     {
         if (shape.m_impl) {
-            auto copy = shape.m_impl->Clone_();
+            auto copy = shape.m_impl->Clone();
             copy->SetRestitution_(value);
             shape.m_impl = std::move(copy);
         }
@@ -363,7 +363,7 @@ public:
     friend void SetDensity(Shape& shape, NonNegative<AreaDensity> value)
     {
         if (shape.m_impl) {
-            auto copy = shape.m_impl->Clone_();
+            auto copy = shape.m_impl->Clone();
             copy->SetDensity_(value);
             shape.m_impl = std::move(copy);
         }
@@ -377,7 +377,7 @@ public:
     friend void SetFilter(Shape& shape, Filter value)
     {
         if (shape.m_impl) {
-            auto copy = shape.m_impl->Clone_();
+            auto copy = shape.m_impl->Clone();
             copy->SetFilter_(value);
             shape.m_impl = std::move(copy);
         }
@@ -391,7 +391,7 @@ public:
     friend void SetSensor(Shape& shape, bool value)
     {
         if (shape.m_impl) {
-            auto copy = shape.m_impl->Clone_();
+            auto copy = shape.m_impl->Clone();
             copy->SetSensor_(value);
             shape.m_impl = std::move(copy);
         }
@@ -400,7 +400,7 @@ public:
     friend void Translate(Shape& shape, const Length2& value)
     {
         if (shape.m_impl) {
-            auto copy = shape.m_impl->Clone_();
+            auto copy = shape.m_impl->Clone();
             copy->Translate_(value);
             shape.m_impl = std::move(copy);
         }
@@ -409,7 +409,7 @@ public:
     friend void Scale(Shape& shape, const Vec2& value)
     {
         if (shape.m_impl) {
-            auto copy = shape.m_impl->Clone_();
+            auto copy = shape.m_impl->Clone();
             copy->Scale_(value);
             shape.m_impl = std::move(copy);
         }
@@ -418,7 +418,7 @@ public:
     friend void Rotate(Shape& shape, const UnitVec& value)
     {
         if (shape.m_impl) {
-            auto copy = shape.m_impl->Clone_();
+            auto copy = shape.m_impl->Clone();
             copy->Rotate_(value);
             shape.m_impl = std::move(copy);
         }

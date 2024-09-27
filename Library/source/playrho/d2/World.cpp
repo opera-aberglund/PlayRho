@@ -25,9 +25,9 @@
 
 namespace playrho::d2 {
 
-World::World(const WorldConf& def): World{AabbTreeWorld{def}} {}
+World::World(const WorldConf& def) : World{AabbTreeWorld{def}} {}
 
-World::World(const World& other): m_impl{other.m_impl? other.m_impl->Clone_(): nullptr}
+World::World(const World& other) : m_impl{other.m_impl ? other.m_impl->Clone() : nullptr}
 {
     // Intentionally empty.
 }
@@ -43,7 +43,7 @@ World::~World() noexcept
 
 World& World::operator=(const World& other)
 {
-    m_impl = other.m_impl ? other.m_impl->Clone_() : nullptr;
+    m_impl = other.m_impl ? other.m_impl->Clone() : nullptr;
     return *this;
 }
 
