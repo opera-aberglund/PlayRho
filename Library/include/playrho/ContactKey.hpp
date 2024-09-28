@@ -73,8 +73,8 @@ private:
     /// @brief The contact counter ID pair.
     /// @note Uses <code>std::pair</code> given that <code>std::minmax</code> returns
     ///   this type making it the most natural type for this class.
-    std::pair<ContactCounter, ContactCounter> m_ids{static_cast<ContactCounter>(-1),
-                                                    static_cast<ContactCounter>(-1)};
+    cista::offset::pair<ContactCounter, ContactCounter> m_ids{static_cast<ContactCounter>(-1),
+                                                              static_cast<ContactCounter>(-1)};
 };
 
 /// @brief Equality operator.

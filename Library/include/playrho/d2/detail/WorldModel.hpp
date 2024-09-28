@@ -255,7 +255,8 @@ struct WorldModel final : WorldConcept {
     }
 
     /// @copydoc WorldConcept::GetContacts_(BodyID) const
-    std::vector<std::pair<ContactKey, ContactID>> GetContacts_(BodyID id) const override
+    cista::offset::vector<cista::offset::pair<ContactKey, ContactID>>
+    GetContacts_(BodyID id) const override
     {
         return GetContacts(data, id);
     }
@@ -345,7 +346,7 @@ struct WorldModel final : WorldConcept {
     }
 
     /// @copydoc WorldConcept::GetContacts_
-    std::vector<KeyedContactID> GetContacts_() const override
+    cista::offset::vector<KeyedContactID> GetContacts_() const override
     {
         return GetContacts(data);
     }

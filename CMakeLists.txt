@@ -145,6 +145,8 @@ if (PLAYRHO_INSTALL)
     include(CPack)
 endif ()
 
-target_link_libraries(${PROJECT_NAME} PRIVATE
+add_subdirectory(cista)
+
+target_link_libraries(${PROJECT_NAME} PUBLIC
         cista
 )

@@ -279,7 +279,8 @@ struct WorldConcept {
     ///   miss some collisions if you don't use <code>ContactFunction</code>.
     /// @throws std::out_of_range If given an invalid body identifier.
     /// @see GetBodyRange_.
-    virtual std::vector<std::pair<ContactKey, ContactID>> GetContacts_(BodyID id) const = 0;
+    virtual cista::offset::vector<cista::offset::pair<ContactKey, ContactID>>
+    GetContacts_(BodyID id) const = 0;
 
     /// @brief Gets the identities of the shapes associated with the identified body.
     /// @throws std::out_of_range If given an invalid body identifier.
@@ -380,7 +381,7 @@ struct WorldConcept {
     /// @warning contacts are created and destroyed in the middle of a time step.
     /// Use <code>ContactFunction</code> to avoid missing contacts.
     /// @return World contacts sized-range.
-    virtual std::vector<KeyedContactID> GetContacts_() const = 0;
+    virtual cista::offset::vector<KeyedContactID> GetContacts_() const = 0;
 
     /// @brief Gets the identified contact.
     /// @throws std::out_of_range If given an invalid contact identifier.

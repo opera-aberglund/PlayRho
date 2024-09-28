@@ -108,8 +108,13 @@ struct AABB {
         }
     }
 
+    auto cista_members()
+    {
+        return std::tie(ranges);
+    }
+
     /// @brief Holds the value range of each dimension from 0 to N-1.
-    LengthInterval ranges[N];
+    cista::offset::array<LengthInterval, N> ranges;
 };
 
 /// @brief Gets whether the two AABB objects are equal.

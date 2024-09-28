@@ -93,14 +93,14 @@ class AabbTreeWorld;
 using BodyIDs = cista::offset::vector<BodyID>;
 
 /// @brief Keyed contact IDs container type.
-using KeyedContactIDs = std::vector<KeyedContactID>;
+using KeyedContactIDs = cista::offset::vector<KeyedContactID>;
 
 /// @brief Joint IDs container type.
 /// @note Cannot be container of Joint instances since joints are polymorphic types.
 using JointIDs = cista::offset::vector<JointID>;
 
 /// @brief Container type for Body associated contact information.
-using BodyContactIDs = std::vector<std::pair<ContactKey, ContactID>>;
+using BodyContactIDs = cista::offset::vector<cista::offset::pair<ContactKey, ContactID>>;
 
 /// @brief Body joint IDs container type.
 using BodyJointIDs = cista::offset::vector<std::pair<BodyID, JointID>>;
@@ -582,6 +582,14 @@ public:
     /// @see Clear.
     ~AabbTreeWorld() noexcept;
 
+    auto cista_members()
+    {
+        return std::tie(m_tree, m_bodyBuffer, m_shapeBuffer, m_jointBuffer, m_contactBuffer,
+                        m_manifoldBuffer, m_bodyContacts, m_bodyJoints, m_bodyProxies,
+                        m_proxiesForContacts, m_fixturesForProxies, m_bodiesForSync, m_bodies,
+                        m_joints, m_contacts, m_islanded, m_flags, m_inv_dt0, m_vertexRadius);
+    }
+
     /// @brief Copy assignment is explicitly deleted.
     /// @note This type is not assignable.
     AabbTreeWorld& operator=(const AabbTreeWorld& other) = delete;
@@ -589,28 +597,6 @@ public:
     /// @brief Move assignment is explicitly deleted.
     /// @note This type is not assignable.
     AabbTreeWorld& operator=(AabbTreeWorld&& other) = delete;
-
-    // return // newline!
-    //     (lhs.m_bodyBuffer == rhs.m_bodyBuffer) && // newline!
-    //     (lhs.m_shapeBuffer == rhs.m_shapeBuffer) && // newline!
-    //     (lhs.m_jointBuffer == rhs.m_jointBuffer) && // newline!
-    //     (lhs.m_bodyJoints == rhs.m_bodyJoints) && // newline!
-    //     (lhs.m_bodyProxies == rhs.m_bodyProxies) && // newline!
-    //     (lhs.m_proxiesForContacts == rhs.m_proxiesForContacts) && // newline!
-    //     (lhs.m_fixturesForProxies == rhs.m_fixturesForProxies) && // newline!
-    //     (lhs.m_bodiesForSync == rhs.m_bodiesForSync) && // newline!
-    //     (lhs.m_bodies == rhs.m_bodies) && // newline!
-    //     (lhs.m_joints == rhs.m_joints) && // newline!
-    //     (lhs.m_flags == rhs.m_flags) && // newline!
-    //     (lhs.m_vertexRadius == rhs.m_vertexRadius) && // newline
-    //     SameTouching(World{lhs}, World{rhs});
-
-    auto cista_members()
-    {
-        return std::tie(m_bodyBuffer, m_shapeBuffer, m_jointBuffer, m_bodyJoints, m_bodyProxies,
-                        m_proxiesForContacts, m_fixturesForProxies, m_bodiesForSync, m_bodies,
-                        m_joints, m_flags, m_vertexRadius);
-    }
 
     // Listener friend functions...
     friend void SetShapeDestructionListener(AabbTreeWorld& world, ShapeFunction listener) noexcept;
@@ -699,7 +685,7 @@ private:
     /// @see Step.
     struct Islanded {
         /// @brief Type alias for member variables.
-        using vector = std::vector<bool>;
+        using vector = cista::offset::vector<bool>;
 
         vector bodies; ///< IDs of bodies that have been "islanded".
         vector contacts; ///< IDs of contacts that have been "islanded".

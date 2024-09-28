@@ -96,6 +96,12 @@ public:
     ///   else they return false.
     constexpr Contact(const Contactable& a, const Contactable& b) noexcept;
 
+    auto cista_members()
+    {
+        return std::tie(m_contactableA, m_contactableB, m_friction, m_restitution, m_tangentSpeed,
+                        m_toi, m_toiCount, m_flags);
+    }
+
     /// @brief Is this contact touching?
     /// @details
     /// Touching is defined as either:
@@ -344,7 +350,8 @@ constexpr Contact::Contact(const Contactable& a, const Contactable& b) noexcept
     : m_contactableA{a},
       m_contactableB{b},
       m_flags{((a != DefaultContactable) || (b != DefaultContactable))
-          ? FlagsType(e_enabledFlag | e_dirtyFlag): FlagsType{}}
+                  ? FlagsType(e_enabledFlag | e_dirtyFlag)
+                  : FlagsType{}}
 {
 }
 
@@ -456,8 +463,8 @@ constexpr bool Contact::HasValidToi() const noexcept
 constexpr std::optional<UnitIntervalFF<Real>> Contact::GetToi() const noexcept
 {
     return HasValidToi() // force newline
-        ? std::optional<UnitIntervalFF<Real>>{m_toi} // force newline
-        : std::optional<UnitIntervalFF<Real>>{};
+               ? std::optional<UnitIntervalFF<Real>>{m_toi} // force newline
+               : std::optional<UnitIntervalFF<Real>>{};
 }
 
 constexpr void Contact::SetToi(const std::optional<UnitIntervalFF<Real>>& toi) noexcept
@@ -852,7 +859,7 @@ constexpr void SetTangentSpeed(Contact& contact, LinearVelocity value) noexcept
 constexpr bool IsFor(const Contact& c, BodyID bodyID, ShapeID shapeID) noexcept
 {
     return IsFor(c.GetContactableA(), bodyID, shapeID) // force newline
-        || IsFor(c.GetContactableB(), bodyID, shapeID);
+           || IsFor(c.GetContactableB(), bodyID, shapeID);
 }
 
 /// @brief Is-for convenience function.
@@ -867,8 +874,8 @@ constexpr bool IsFor(const Contact& c, ShapeID shapeID) noexcept
 /// @relatedalso Contact
 constexpr auto GetOtherBody(const Contact& c, BodyID bodyID) noexcept
 {
-    return (c.GetContactableA().bodyId != bodyID)
-        ? c.GetContactableA().bodyId: c.GetContactableB().bodyId;
+    return (c.GetContactableA().bodyId != bodyID) ? c.GetContactableA().bodyId
+                                                  : c.GetContactableB().bodyId;
 }
 
 /// @brief Whether or not the given contact was destroyed.

@@ -40,15 +40,13 @@ namespace playrho {
 ///   vertex-face,
 ///   face-vertex, or
 ///   face-face.
-struct ContactFeature
-{
+struct ContactFeature {
     using Index = std::uint8_t; ///< Index type.
 
     /// @brief Type of the associated index value.
-    enum Type: std::uint16_t
-    {
+    enum Type : std::uint16_t {
         e_vertex = 0,
-        e_face   = 1,
+        e_face = 1,
     };
 
     /// @brief Default constructor.
@@ -70,9 +68,14 @@ struct ContactFeature
         // Intentionally empty.
     }
 
-    Type typeA: 1; ///< The feature type on shape A
-    Type typeB: 1; ///< The feature type on shape B
-    Type other: 14; ///< Private for internal use!
+    auto cista_members()
+    {
+        return std::tie(typeA, typeB, other, indexA, indexB);
+    }
+
+    Type typeA; ///< The feature type on shape A
+    Type typeB; ///< The feature type on shape B
+    Type other; ///< Private for internal use!
     Index indexA; ///< Feature index on shape A
     Index indexB; ///< Feature index on shape B
 };
@@ -120,8 +123,8 @@ constexpr ContactFeature Flip(ContactFeature val) noexcept
 /// @relatedalso ContactFeature
 constexpr bool operator==(ContactFeature lhs, ContactFeature rhs) noexcept
 {
-    return (lhs.typeA == rhs.typeA) && (lhs.indexA == rhs.indexA)
-        && (lhs.typeB == rhs.typeB) && (lhs.indexB == rhs.indexB);
+    return (lhs.typeA == rhs.typeA) && (lhs.indexA == rhs.indexA) && (lhs.typeB == rhs.typeB) &&
+           (lhs.indexB == rhs.indexB);
 }
 
 /// @brief Determines if the given two contact features are not equal.
@@ -134,10 +137,11 @@ constexpr bool operator!=(ContactFeature lhs, ContactFeature rhs) noexcept
 /// @brief Gets the human readable name for the given contact feature type.
 constexpr const char* GetName(ContactFeature::Type type) noexcept
 {
-    switch (type)
-    {
-        case ContactFeature::e_face: return "face";
-        case ContactFeature::e_vertex: return "vertex";
+    switch (type) {
+    case ContactFeature::e_face:
+        return "face";
+    case ContactFeature::e_vertex:
+        return "vertex";
     }
     return "unknown";
 }

@@ -134,8 +134,11 @@ public:
     /// @brief Move constructor.
     DynamicTree(DynamicTree&& other) noexcept;
 
-    /// @brief Destroys the tree, freeing the node pool.
-    ~DynamicTree() noexcept;
+    auto cista_members()
+    {
+        return std::tie(m_nodeCount, m_leafCount, m_rootIndex, m_freeIndex, m_nodeCapacity,
+                        m_nodes);
+    }
 
     /// @brief Unifying assignment operator.
     /// @note This intentionally takes the argument by-value. Along with the move constructor,
@@ -310,7 +313,7 @@ private:
         InvalidSize}; ///< Index of root element in m_nodes or <code>InvalidSize</code>.
     Size m_freeIndex{InvalidSize}; ///< Free list. @details Index to free nodes.
     Size m_nodeCapacity{0u}; ///< Node capacity. @details Size of buffer allocated for nodes.
-    TreeNode* m_nodes{nullptr}; ///< Nodes. @details Initialized on construction.
+    cista::offset::vector<TreeNode> m_nodes{}; ///< Nodes. @details Initialized on construction.
 };
 
 /// @brief Is unused.
@@ -347,8 +350,7 @@ public:
     constexpr TreeNode(TreeNode&& other) = default;
 
     /// @brief Initializing constructor.
-    constexpr explicit TreeNode(Size other = DynamicTree::InvalidSize) noexcept
-        : m_other{other}
+    constexpr explicit TreeNode(Size other = DynamicTree::InvalidSize) noexcept : m_other{other}
     {
         assert(IsUnused(GetHeight()));
     }
@@ -359,6 +361,11 @@ public:
         : m_aabb{aabb}, m_variant{value}, m_height{0}, m_other{other}
     {
         // Intentionally empty.
+    }
+
+    auto cista_members()
+    {
+        return std::tie(m_aabb, m_variant, m_height, m_other);
     }
 
     /// @brief Initializing constructor.
@@ -522,7 +529,7 @@ inline const DynamicTree::TreeNode& DynamicTree::GetNode(Size index) const noexc
 {
     assert(index != InvalidSize);
     assert(index < GetNodeCapacity());
-    return *(m_nodes + index); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    return m_nodes[index];
 }
 
 inline DynamicTree::Height DynamicTree::GetHeight(Size index) const noexcept
@@ -562,7 +569,7 @@ inline Contactable DynamicTree::GetLeafData(Size index) const noexcept
 /// @return Node index or <code>DynamicTree::InvalidSize</code>.
 /// @see DynamicTree::InvalidSize.
 /// @relatedalso DynamicTree
-auto FindIndex(const DynamicTree &tree, const Contactable &c) noexcept -> DynamicTree::Size;
+auto FindIndex(const DynamicTree& tree, const Contactable& c) noexcept -> DynamicTree::Size;
 
 /// @brief Replaces the old child with the new child.
 /// @pre Either @c bd.child1 or @c bd.child2 is equal to @c oldChild .
@@ -622,8 +629,7 @@ constexpr DynamicTree::Size GetNext(const DynamicTree::TreeNode& node) noexcept
 inline DynamicTree::Height GetHeight(const DynamicTree& tree) noexcept
 {
     const auto index = tree.GetRootIndex();
-    return (index != DynamicTree::InvalidSize) ? tree.GetHeight(index)
-                                                    : DynamicTree::Height{0};
+    return (index != DynamicTree::InvalidSize) ? tree.GetHeight(index) : DynamicTree::Height{0};
 }
 
 /// @brief Gets the AABB for the given dynamic tree.
@@ -639,8 +645,7 @@ inline AABB GetAABB(const DynamicTree& tree) noexcept
 
 /// @brief Tests for overlap of the elements identified in the given dynamic tree.
 /// @relatedalso DynamicTree
-inline bool TestOverlap(const DynamicTree& tree,
-                        DynamicTree::Size leafIdA,
+inline bool TestOverlap(const DynamicTree& tree, DynamicTree::Size leafIdA,
                         DynamicTree::Size leafIdB) noexcept
 {
     return TestOverlap(tree.GetAABB(leafIdA), tree.GetAABB(leafIdB));

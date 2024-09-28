@@ -165,7 +165,8 @@ public:
     /// @param iA Index of vertex from shape A representing the local center of "circle" A.
     /// @param vB Local center of "circle" B.
     /// @param iB Index of vertex from shape B representing the local center of "circle" B.
-    static Manifold GetForCircles(const Length2& vA, CfIndex iA, const Length2& vB, CfIndex iB) noexcept
+    static Manifold GetForCircles(const Length2& vA, CfIndex iA, const Length2& vB,
+                                  CfIndex iB) noexcept
     {
         return {e_circles, UnitVec(), vA, {{Point{vB, GetVertexVertexContactFeature(iA, iB)}}}};
     }
@@ -248,6 +249,11 @@ public:
     /// For an unset-type manifold:
     /// point count is zero, point data is not defined, and all other properties are invalid.
     Manifold() = default;
+
+    auto cista_members()
+    {
+        return std::tie(m_localNormal, m_localPoint, m_points);
+    }
 
     /// Gets the type of this manifold.
     ///
@@ -361,7 +367,7 @@ public:
 private:
     /// @brief Point array structure.
     struct PointArray {
-        Point elements[MaxManifoldPoints]; ///< Elements.
+        cista::offset::array<Point, MaxManifoldPoints> elements; ///< Elements.
 
         /// @brief Retrieves the type value.
         constexpr auto GetType() const noexcept -> Type
@@ -380,7 +386,7 @@ private:
         {
             const auto v0 = elements[0].contactFeature.indexA != InvalidVertex;
             const auto v1 = elements[1].contactFeature.indexA != InvalidVertex;
-            return static_cast<size_type>((v0? 1u: 0u) + (v1? 1u: 0u));
+            return static_cast<size_type>((v0 ? 1u : 0u) + (v1 ? 1u : 0u));
         }
 
         /// @brief Array indexing operator.
@@ -403,7 +409,8 @@ private:
     /// @param ln Local normal.
     /// @param lp Local point.
     /// @param mpa Manifold point array.
-    constexpr Manifold(Type t, const UnitVec& ln, const Length2& lp, const PointArray& mpa) noexcept;
+    constexpr Manifold(Type t, const UnitVec& ln, const Length2& lp,
+                       const PointArray& mpa) noexcept;
 
     /// Local normal.
     /// @details Exact usage depends on manifold type.
@@ -446,7 +453,8 @@ constexpr Manifold::Conf GetDefaultManifoldConf() noexcept
 /// @relatedalso Manifold::Conf
 Manifold::Conf GetManifoldConf(const StepConf& conf) noexcept;
 
-constexpr Manifold::Manifold(Type t, const UnitVec& ln, const Length2& lp, const PointArray& mpa) noexcept
+constexpr Manifold::Manifold(Type t, const UnitVec& ln, const Length2& lp,
+                             const PointArray& mpa) noexcept
     : m_localNormal{ln}, m_localPoint{lp}, m_points{mpa}
 {
     assert(t != e_unset || mpa.size() == 0);
@@ -470,7 +478,8 @@ inline void Manifold::AddPoint(const Point& mp) noexcept
     // assert((GetType() != e_circles) || (mp.contactFeature.typeA == ContactFeature::e_vertex ||
     // mp.contactFeature.typeB == ContactFeature::e_vertex)); assert((GetType() != e_faceA) ||
     // ((mp.contactFeature.typeA == ContactFeature::e_face) && (GetPointCount() == 0 ||
-    // mp.contactFeature.indexA == m_points[0].contactFeature.indexA))); assert((GetType() != e_faceB)
+    // mp.contactFeature.indexA == m_points[0].contactFeature.indexA))); assert((GetType() !=
+    // e_faceB)
     // || (mp.contactFeature.typeB == ContactFeature::e_face));
     auto cf = mp.contactFeature;
     cf.other = static_cast<decltype(cf.other)>(GetType());
@@ -514,9 +523,8 @@ bool operator!=(const Manifold& lhs, const Manifold& rhs) noexcept;
 ///   that had the maximal separation distance from the edge of shape0 identified by idx0.
 /// @param conf Manifold configuration data.
 Manifold GetManifold(bool flipped, const DistanceProxy& shape0, const Transformation& xf0,
-                     VertexCounter idx0, const DistanceProxy& shape1,
-                     const Transformation& xf1, VertexCounter2 indices1,
-                     const Manifold::Conf& conf);
+                     VertexCounter idx0, const DistanceProxy& shape1, const Transformation& xf1,
+                     VertexCounter2 indices1, const Manifold::Conf& conf);
 
 /// @brief Computes manifolds for face-to-point collision.
 /// @pre The given distance proxy <code>GetVertexCount()</code> must be one or greater.
